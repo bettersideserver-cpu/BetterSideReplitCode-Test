@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useLocation } from "wouter";
 import { 
   LayoutDashboard, 
@@ -17,8 +17,21 @@ interface CpAdminLayoutProps {
 }
 
 const CpAdminLayout = ({ children }: CpAdminLayoutProps) => {
-  const [location] = useLocation();
+  const [location, setLocation] = useLocation();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+  // Access Control Check
+  useEffect(() => {
+    const userRole = localStorage.getItem("userRole");
+    if (userRole !== "cp") {
+      setLocation("/"); // Redirect to home if not CP
+    }
+  }, [setLocation]);
+
+  const handleLogout = () => {
+    localStorage.removeItem("userRole");
+    setLocation("/");
+  };
 
   const navigation = [
     { name: "Dashboard", href: "/cp-dashboard", icon: LayoutDashboard },
@@ -100,7 +113,10 @@ const CpAdminLayout = ({ children }: CpAdminLayoutProps) => {
                 <p className="text-xs text-white/40 truncate">Apex Realty</p>
               </div>
             </div>
-            <button className="w-full flex items-center gap-3 px-4 py-2 text-red-400 hover:bg-red-500/10 rounded-lg transition-colors text-sm">
+            <button 
+              onClick={handleLogout}
+              className="w-full flex items-center gap-3 px-4 py-2 text-red-400 hover:bg-red-500/10 rounded-lg transition-colors text-sm"
+            >
               <LogOut size={18} />
               Sign Out
             </button>

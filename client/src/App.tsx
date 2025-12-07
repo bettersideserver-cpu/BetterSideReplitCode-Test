@@ -5,6 +5,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import NotFound from "@/pages/not-found";
 import HomePage from "@/pages/HomePage";
+import Login from "@/pages/Login";
 
 // CP Admin Components
 import CpAdminLayout from "@/pages/cp-admin/layout";
@@ -18,6 +19,7 @@ function AppRouter() {
   return (
     <Switch>
       <Route path="/" component={HomePage} />
+      <Route path="/login" component={Login} />
       
       {/* CP Admin Routes */}
       <Route path="/cp-dashboard*">

@@ -14,16 +14,26 @@ import featuredBg3 from "@assets/generated_images/modern_eco-friendly_villa_comm
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const userRole = localStorage.getItem("userRole");
+  const [, setLocation] = useLocation();
+
+  const handleLogout = () => {
+    localStorage.removeItem("userRole");
+    setLocation("/");
+    window.location.reload(); // Force refresh to update UI state
+  };
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 py-6 md:px-12 transition-all duration-300 bg-gradient-to-b from-black/80 to-transparent">
       {/* Logo */}
-      <div className="flex items-center gap-3">
-        <img src={logoIcon} alt="BetterSide Logo" className="w-10 h-10 object-contain" />
-        <span className="text-2xl font-display font-bold tracking-tight text-white hidden sm:block">
-          BetterSide
-        </span>
-      </div>
+      <Link href="/">
+        <div className="flex items-center gap-3 cursor-pointer">
+          <img src={logoIcon} alt="BetterSide Logo" className="w-10 h-10 object-contain" />
+          <span className="text-2xl font-display font-bold tracking-tight text-white hidden sm:block">
+            BetterSide
+          </span>
+        </div>
+      </Link>
 
       {/* Desktop Nav */}
       <div className="hidden md:flex items-center gap-8">
@@ -37,10 +47,31 @@ const Navbar = () => {
             <span className="absolute -bottom-1 left-0 w-0 h-[2px] bg-[#FF6A00] transition-all duration-300 group-hover:w-full"></span>
           </a>
         ))}
-        <button className="flex items-center gap-2 px-6 py-2.5 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-white text-sm font-semibold hover:bg-white hover:text-black transition-all duration-300">
-          <User size={16} />
-          Login
-        </button>
+        
+        {userRole === "cp" && (
+          <Link href="/cp-dashboard">
+            <span className="text-sm font-medium text-accent hover:text-accent/80 transition-all tracking-wide cursor-pointer font-bold">
+              CP Dashboard
+            </span>
+          </Link>
+        )}
+
+        {userRole ? (
+          <button 
+            onClick={handleLogout}
+            className="flex items-center gap-2 px-6 py-2.5 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-white text-sm font-semibold hover:bg-white hover:text-black transition-all duration-300"
+          >
+            <User size={16} />
+            Logout
+          </button>
+        ) : (
+          <Link href="/login">
+            <button className="flex items-center gap-2 px-6 py-2.5 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-white text-sm font-semibold hover:bg-white hover:text-black transition-all duration-300">
+              <User size={16} />
+              Login
+            </button>
+          </Link>
+        )}
       </div>
 
       {/* Mobile Menu Toggle */}
@@ -59,10 +90,31 @@ const Navbar = () => {
               {item}
             </a>
           ))}
-          <button className="w-full mt-4 py-3 rounded-full bg-primary text-white font-bold flex items-center justify-center gap-2">
-            <User size={18} />
-            Login
-          </button>
+          
+          {userRole === "cp" && (
+            <Link href="/cp-dashboard">
+              <span className="text-accent hover:text-accent/80 py-2 text-lg font-bold transition-colors cursor-pointer block">
+                CP Dashboard
+              </span>
+            </Link>
+          )}
+
+          {userRole ? (
+            <button 
+              onClick={handleLogout}
+              className="w-full mt-4 py-3 rounded-full bg-white/10 text-white font-bold flex items-center justify-center gap-2 border border-white/20"
+            >
+              <User size={18} />
+              Logout
+            </button>
+          ) : (
+            <Link href="/login">
+              <button className="w-full mt-4 py-3 rounded-full bg-primary text-white font-bold flex items-center justify-center gap-2">
+                <User size={18} />
+                Login
+              </button>
+            </Link>
+          )}
         </div>
       )}
     </nav>
