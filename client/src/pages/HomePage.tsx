@@ -1,6 +1,6 @@
 import React, { useRef, useState } from "react";
 import { Link } from "wouter";
-import { Play, ChevronRight, Menu, X, User } from "lucide-react";
+import { Play, ChevronRight, Menu, X, User, Facebook, Instagram, Twitter, Linkedin, Mail } from "lucide-react";
 import heroBg from "@assets/generated_images/futuristic_luxury_skyscraper_at_twilight.png";
 import logoIcon from "@assets/generated_images/simple_abstract_logo_icon.png";
 import project1 from "@assets/generated_images/luxury_apartment_interior_evening.png";
@@ -288,6 +288,84 @@ const FeaturedProjectsList = () => {
   );
 };
 
+const Footer = () => {
+  return (
+    <footer className="bg-black py-20 px-6 md:px-12 border-t border-white/10">
+      <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
+        {/* Brand Column */}
+        <div className="flex flex-col gap-6">
+          <div className="flex items-center gap-3">
+            <img src={logoIcon} alt="BetterSide Logo" className="w-8 h-8 object-contain" />
+            <span className="text-xl font-display font-bold tracking-tight text-white">BetterSide</span>
+          </div>
+          <p className="text-white/60 text-sm leading-relaxed max-w-xs">
+            Experience real estate before it's built. The world's leading immersive project experience platform for trusted developers.
+          </p>
+          <div className="flex gap-4">
+            {[Facebook, Instagram, Twitter, Linkedin].map((Icon, i) => (
+              <a key={i} href="#" className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-white/60 hover:bg-primary hover:text-white transition-all duration-300">
+                <Icon size={18} />
+              </a>
+            ))}
+          </div>
+        </div>
+
+        {/* Links Column 1 */}
+        <div>
+          <h4 className="text-white font-bold mb-6 font-display">Platform</h4>
+          <ul className="space-y-4">
+            {["Home", "About Us", "Features", "Pricing", "Login"].map((item) => (
+              <li key={item}>
+                <a href="#" className="text-white/60 hover:text-primary transition-colors text-sm">
+                  {item}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        {/* Links Column 2 */}
+        <div>
+          <h4 className="text-white font-bold mb-6 font-display">Resources</h4>
+          <ul className="space-y-4">
+            {["For Developers", "For Channel Partners", "For Home Buyers", "Case Studies", "Blog"].map((item) => (
+              <li key={item}>
+                <a href="#" className="text-white/60 hover:text-primary transition-colors text-sm">
+                  {item}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        {/* Contact/Newsletter */}
+        <div>
+          <h4 className="text-white font-bold mb-6 font-display">Contact</h4>
+          <div className="flex flex-col gap-4">
+            <a href="mailto:hello@betterside.com" className="flex items-center gap-3 text-white/60 hover:text-white transition-colors text-sm">
+              <Mail size={16} />
+              hello@betterside.com
+            </a>
+            <p className="text-white/40 text-xs mt-4">
+              © 2025 BetterSide Inc.<br />All rights reserved.
+            </p>
+            <div className="flex gap-4 mt-2">
+              <a href="#" className="text-white/40 hover:text-white text-xs">Privacy Policy</a>
+              <a href="#" className="text-white/40 hover:text-white text-xs">Terms of Service</a>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div className="max-w-7xl mx-auto mt-16 pt-8 border-t border-white/5 text-center">
+        <p className="text-white/20 text-xs font-mono">
+          DESIGNED WITH PASSION FOR IMMERSIVE EXPERIENCES
+        </p>
+      </div>
+    </footer>
+  );
+};
+
 const HomePage = () => {
   return (
     <div className="min-h-screen bg-[#050816] text-white selection:bg-accent selection:text-white">
@@ -295,6 +373,7 @@ const HomePage = () => {
       <HeroSection />
       <DiscoverProjectsSection />
       <FeaturedProjectsList />
+      <Footer />
     </div>
   );
 };
