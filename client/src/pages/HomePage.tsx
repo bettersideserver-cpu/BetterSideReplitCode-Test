@@ -6,7 +6,9 @@ import logoIcon from "@assets/generated_images/simple_abstract_logo_icon.png";
 import project1 from "@assets/generated_images/luxury_apartment_interior_evening.png";
 import project2 from "@assets/generated_images/modern_villa_exterior_night.png";
 import project3 from "@assets/generated_images/commercial_office_lobby_futuristic.png";
-import featuredBg from "@assets/generated_images/aerial_view_luxury_community.png";
+import featuredBg1 from "@assets/generated_images/aerial_view_luxury_community.png";
+import featuredBg2 from "@assets/generated_images/futuristic_commercial_hub_twilight.png";
+import featuredBg3 from "@assets/generated_images/modern_eco-friendly_villa_community.png";
 
 // --- Components ---
 
@@ -216,48 +218,73 @@ const DiscoverProjectsSection = () => {
   );
 };
 
-const FeaturedVideoSection = () => {
+interface FeaturedProjectProps {
+  image: string;
+  title: string;
+  desc: string;
+  reversed?: boolean;
+}
+
+const FeaturedProjectSection = ({ image, title, desc, reversed = false }: FeaturedProjectProps) => {
   return (
-    <section className="py-24 bg-[#050816] px-6 md:px-12">
+    <section className="py-16 md:py-24 bg-[#050816] px-6 md:px-12 border-t border-white/5 last:border-b-0">
       <div className="max-w-7xl mx-auto">
         <div className="relative w-full aspect-video rounded-3xl overflow-hidden group shadow-2xl shadow-primary/10 border border-white/5">
           {/* Background */}
           <img 
-            src={featuredBg} 
-            alt="Featured Project" 
-            className="w-full h-full object-cover opacity-60 group-hover:opacity-40 transition-opacity duration-500"
+            src={image} 
+            alt={title} 
+            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
           />
           
-          {/* Play Button Overlay */}
-          <div className="absolute inset-0 flex items-center justify-center z-10">
-            <button className="w-24 h-24 rounded-full bg-primary/90 text-white flex items-center justify-center backdrop-blur-sm transition-transform duration-300 group-hover:scale-110 shadow-[0_0_40px_rgba(0,87,255,0.6)]">
-              <Play size={40} fill="currentColor" className="ml-2" />
-            </button>
-          </div>
+          {/* Overlay Gradient - Stronger at bottom for text readability */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent z-10" />
 
           {/* Bottom Info Overlay */}
-          <div className="absolute bottom-0 left-0 right-0 p-8 md:p-12 bg-gradient-to-t from-black/90 via-black/50 to-transparent z-20">
-            <h2 className="text-3xl md:text-4xl font-display font-bold text-white mb-2">Lakeside Residences</h2>
-            <p className="text-white/80 text-lg mb-0">Full immersive tour of Lakeside Residences, pre-launch in Mohali.</p>
+          <div className="absolute bottom-0 left-0 right-0 p-8 md:p-12 z-20">
+            <h2 className="text-3xl md:text-5xl font-display font-bold text-white mb-3">{title}</h2>
+            <p className="text-white/80 text-lg md:text-xl mb-8 max-w-2xl leading-relaxed">{desc}</p>
+            
+            <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
+              <button className="px-8 py-4 rounded-full bg-primary text-white font-bold text-lg hover:bg-primary/90 hover:scale-105 transition-all duration-300 shadow-lg min-w-[200px]">
+                View Full IPX Experience
+              </button>
+              <button className="px-8 py-4 rounded-full border border-white/20 text-white font-bold text-lg hover:bg-white/10 hover:border-white transition-all duration-300 min-w-[200px]">
+                Connect with a Partner
+              </button>
+            </div>
           </div>
         </div>
-
-        {/* Action Buttons */}
-        <div className="mt-12 flex flex-col items-center gap-6">
-          <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
-            <button className="px-8 py-4 rounded-full bg-primary text-white font-bold text-lg hover:bg-primary/90 hover:scale-105 transition-all duration-300 shadow-lg min-w-[240px]">
-              View Full IPX Experience
-            </button>
-            <button className="px-8 py-4 rounded-full border border-white/20 text-white font-bold text-lg hover:bg-white/10 hover:border-white transition-all duration-300 min-w-[240px]">
-              Connect with a Partner
-            </button>
-          </div>
-          <p className="text-white/40 text-sm font-medium tracking-wide">
-            Powered by BetterSide — only verified developers listed.
+        
+        <div className="mt-4 text-center">
+          <p className="text-white/30 text-xs font-medium tracking-widest uppercase">
+            Powered by BetterSide — Verified Developer
           </p>
         </div>
       </div>
     </section>
+  );
+};
+
+const FeaturedProjectsList = () => {
+  return (
+    <>
+      <FeaturedProjectSection 
+        image={featuredBg1}
+        title="Lakeside Residences"
+        desc="Full immersive tour of Lakeside Residences, a premium waterfront community pre-launch in Mohali."
+      />
+      <FeaturedProjectSection 
+        image={featuredBg2}
+        title="Cyber City Hub"
+        desc="Experience the future of work. A next-gen commercial district with smart offices and retail spaces."
+      />
+      <FeaturedProjectSection 
+        image={featuredBg3}
+        title="EcoValley Villas"
+        desc="Sustainable luxury living in the heart of nature. Solar-powered villas with private infinity pools."
+      />
+    </>
   );
 };
 
@@ -267,7 +294,7 @@ const HomePage = () => {
       <Navbar />
       <HeroSection />
       <DiscoverProjectsSection />
-      <FeaturedVideoSection />
+      <FeaturedProjectsList />
     </div>
   );
 };
