@@ -27,13 +27,14 @@ const Navbar = () => {
 
       {/* Desktop Nav */}
       <div className="hidden md:flex items-center gap-8">
-        {["For Developers", "For Channel Partners", "For Home Buyers", "About"].map((item) => (
+        {["Explore", "About", "Contact"].map((item) => (
           <a
             key={item}
             href="#"
-            className="text-sm font-medium text-white/80 hover:text-white transition-colors tracking-wide"
+            className="text-sm font-medium text-white transition-all tracking-wide relative group"
           >
             {item}
+            <span className="absolute -bottom-1 left-0 w-0 h-[2px] bg-[#FF6A00] transition-all duration-300 group-hover:w-full"></span>
           </a>
         ))}
         <button className="flex items-center gap-2 px-6 py-2.5 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-white text-sm font-semibold hover:bg-white hover:text-black transition-all duration-300">
@@ -53,12 +54,13 @@ const Navbar = () => {
       {/* Mobile Nav Overlay */}
       {isOpen && (
         <div className="absolute top-full left-0 right-0 bg-[#050816] border-b border-white/10 p-6 flex flex-col gap-4 md:hidden animate-in slide-in-from-top-2">
-          {["For Developers", "For Channel Partners", "For Home Buyers", "About"].map((item) => (
-            <a key={item} href="#" className="text-white/80 hover:text-white py-2 text-lg">
+          {["Explore", "About", "Contact"].map((item) => (
+            <a key={item} href="#" className="text-white hover:text-[#FF6A00] py-2 text-lg font-medium transition-colors">
               {item}
             </a>
           ))}
-          <button className="w-full mt-4 py-3 rounded-full bg-primary text-white font-bold">
+          <button className="w-full mt-4 py-3 rounded-full bg-primary text-white font-bold flex items-center justify-center gap-2">
+            <User size={18} />
             Login
           </button>
         </div>
