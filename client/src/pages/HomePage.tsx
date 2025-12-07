@@ -15,11 +15,9 @@ import featuredBg3 from "@assets/generated_images/modern_eco-friendly_villa_comm
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const userRole = localStorage.getItem("userRole");
-  const [, setLocation] = useLocation();
 
   const handleLogout = () => {
     localStorage.removeItem("userRole");
-    setLocation("/");
     window.location.reload(); // Force refresh to update UI state
   };
 
