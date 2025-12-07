@@ -15,9 +15,11 @@ import featuredBg3 from "@assets/generated_images/modern_eco-friendly_villa_comm
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const userRole = localStorage.getItem("userRole");
+  const userName = localStorage.getItem("userName");
 
   const handleLogout = () => {
     localStorage.removeItem("userRole");
+    localStorage.removeItem("userName");
     window.location.reload(); // Force refresh to update UI state
   };
 
@@ -54,14 +56,25 @@ const Navbar = () => {
           </Link>
         )}
 
+        {userRole === "developer" && (
+          <Link href="/developer-dashboard">
+             <span className="text-sm font-medium text-emerald-400 hover:text-emerald-300 transition-all tracking-wide cursor-pointer font-bold">
+              Developer Dashboard
+            </span>
+          </Link>
+        )}
+
         {userRole ? (
-          <button 
-            onClick={handleLogout}
-            className="flex items-center gap-2 px-6 py-2.5 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-white text-sm font-semibold hover:bg-white hover:text-black transition-all duration-300"
-          >
-            <User size={16} />
-            Logout
-          </button>
+          <div className="flex items-center gap-4">
+            <span className="text-white font-medium">Hi, {userName?.split(' ')[0]}</span>
+            <button 
+              onClick={handleLogout}
+              className="flex items-center gap-2 px-6 py-2.5 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-white text-sm font-semibold hover:bg-white hover:text-black transition-all duration-300"
+            >
+              <User size={16} />
+              Logout
+            </button>
+          </div>
         ) : (
           <Link href="/login">
             <button className="flex items-center gap-2 px-6 py-2.5 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-white text-sm font-semibold hover:bg-white hover:text-black transition-all duration-300">
@@ -97,14 +110,25 @@ const Navbar = () => {
             </Link>
           )}
 
+           {userRole === "developer" && (
+            <Link href="/developer-dashboard">
+              <span className="text-emerald-400 hover:text-emerald-300 py-2 text-lg font-bold transition-colors cursor-pointer block">
+                Developer Dashboard
+              </span>
+            </Link>
+          )}
+
           {userRole ? (
-            <button 
-              onClick={handleLogout}
-              className="w-full mt-4 py-3 rounded-full bg-white/10 text-white font-bold flex items-center justify-center gap-2 border border-white/20"
-            >
-              <User size={18} />
-              Logout
-            </button>
+            <div className="mt-4 pt-4 border-t border-white/10">
+              <p className="text-white font-bold mb-4 text-center">Hi, {userName}</p>
+              <button 
+                onClick={handleLogout}
+                className="w-full py-3 rounded-full bg-white/10 text-white font-bold flex items-center justify-center gap-2 border border-white/20"
+              >
+                <User size={18} />
+                Logout
+              </button>
+            </div>
           ) : (
             <Link href="/login">
               <button className="w-full mt-4 py-3 rounded-full bg-primary text-white font-bold flex items-center justify-center gap-2">

@@ -68,16 +68,21 @@ const CpAdminLayout = ({ children }: CpAdminLayoutProps) => {
       >
         <div className="p-6 flex flex-col h-full">
           {/* Logo */}
-          <div className="flex items-center gap-3 mb-10">
-            <img src={logoIcon} alt="BetterSide" className="w-8 h-8 object-contain" />
-            <span className="text-xl font-display font-bold tracking-tight">CP Panel</span>
-            <button 
-              className="md:hidden ml-auto text-white/60"
-              onClick={() => setIsSidebarOpen(false)}
-            >
-              <X size={20} />
-            </button>
-          </div>
+          <Link href="/">
+            <div className="flex items-center gap-3 mb-10 cursor-pointer">
+              <img src={logoIcon} alt="BetterSide" className="w-8 h-8 object-contain" />
+              <span className="text-xl font-display font-bold tracking-tight text-white">CP Panel</span>
+              <button 
+                className="md:hidden ml-auto text-white/60"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setIsSidebarOpen(false);
+                }}
+              >
+                <X size={20} />
+              </button>
+            </div>
+          </Link>
 
           {/* Navigation */}
           <nav className="flex-1 space-y-2">
