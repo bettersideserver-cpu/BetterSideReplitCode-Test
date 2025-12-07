@@ -9,11 +9,6 @@ import Login from "@/pages/Login";
 
 // CP Admin Components
 import CpAdminLayout from "@/pages/cp-admin/layout";
-import CpDashboard from "@/pages/cp-admin/dashboard";
-import CpLeads from "@/pages/cp-admin/leads";
-import CpRunAds from "@/pages/cp-admin/ads";
-import CpMarketingSupport from "@/pages/cp-admin/marketing";
-import CpProfile from "@/pages/cp-admin/profile";
 
 function AppRouter() {
   return (
@@ -22,17 +17,8 @@ function AppRouter() {
       <Route path="/login" component={Login} />
       
       {/* CP Admin Routes */}
-      <Route path="/cp-dashboard*">
-        <CpAdminLayout>
-          <Switch>
-            <Route path="/cp-dashboard" component={CpDashboard} />
-            <Route path="/cp-dashboard/leads" component={CpLeads} />
-            <Route path="/cp-dashboard/ads" component={CpRunAds} />
-            <Route path="/cp-dashboard/marketing" component={CpMarketingSupport} />
-            <Route path="/cp-dashboard/profile" component={CpProfile} />
-            <Route component={NotFound} />
-          </Switch>
-        </CpAdminLayout>
+      <Route path="/cp-dashboard">
+        <CpAdminLayout />
       </Route>
 
       <Route component={NotFound} />

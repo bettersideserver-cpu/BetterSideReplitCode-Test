@@ -12,13 +12,20 @@ import {
 } from "lucide-react";
 import logoIcon from "@assets/generated_images/simple_abstract_logo_icon.png";
 
+import CpDashboard from "./dashboard";
+import CpLeads from "./leads";
+import CpRunAds from "./ads";
+import CpMarketingSupport from "./marketing";
+import CpProfile from "./profile";
+
 interface CpAdminLayoutProps {
-  children: React.ReactNode;
+  children?: React.ReactNode;
 }
 
 const CpAdminLayout = ({ children }: CpAdminLayoutProps) => {
   const [location, setLocation] = useLocation();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState<"dashboard" | "leads" | "runAds" | "marketing" | "profile">("dashboard");
 
   // Access Control Check
   useEffect(() => {
@@ -34,18 +41,12 @@ const CpAdminLayout = ({ children }: CpAdminLayoutProps) => {
   };
 
   const navigation = [
-    { name: "Dashboard", href: "/cp-dashboard", icon: LayoutDashboard },
-    { name: "Leads", href: "/cp-dashboard/leads", icon: Users },
-    { name: "Run Ads", href: "/cp-dashboard/ads", icon: Megaphone },
-    { name: "Marketing Support", href: "/cp-dashboard/marketing", icon: BarChart3 },
-    { name: "Profile", href: "/cp-dashboard/profile", icon: UserCircle },
-  ];
-
-  const isActive = (path: string) => {
-    if (path === "/cp-dashboard" && location === "/cp-dashboard") return true;
-    if (path !== "/cp-dashboard" && location.startsWith(path)) return true;
-    return false;
-  };
+    { id: "dashboard", name: "Dashboard", icon: LayoutDashboard },
+    { id: "leads", name: "Leads", icon: Users },
+    { id: "runAds", name: "Run Ads", icon: Megaphone },
+    { id: "marketing", name: "Marketing Support", icon: BarChart3 },
+    { id: "profile", name: "Profile", icon: UserCircle },
+  ] as const;
 
   return (
     <div className="min-h-screen bg-[#050816] text-white flex">
@@ -81,23 +82,25 @@ const CpAdminLayout = ({ children }: CpAdminLayoutProps) => {
           {/* Navigation */}
           <nav className="flex-1 space-y-2">
             {navigation.map((item) => {
-              const active = isActive(item.href);
+              const active = activeTab === item.id;
               return (
-                <Link key={item.name} href={item.href}>
-                  <div 
-                    className={`
-                      flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer transition-all duration-200 group
-                      ${active 
-                        ? "bg-primary text-white shadow-[0_0_15px_rgba(0,87,255,0.3)]" 
-                        : "text-white/60 hover:bg-white/5 hover:text-white"
-                      }
-                    `}
-                    onClick={() => setIsSidebarOpen(false)}
-                  >
-                    <item.icon size={20} className={active ? "text-white" : "group-hover:text-primary transition-colors"} />
-                    <span className="font-medium text-sm">{item.name}</span>
-                  </div>
-                </Link>
+                <div 
+                  key={item.id}
+                  onClick={() => {
+                    setActiveTab(item.id);
+                    setIsSidebarOpen(false);
+                  }}
+                  className={`
+                    flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer transition-all duration-200 group
+                    ${active 
+                      ? "bg-primary text-white shadow-[0_0_15px_rgba(0,87,255,0.3)]" 
+                      : "text-white/60 hover:bg-white/5 hover:text-white"
+                    }
+                  `}
+                >
+                  <item.icon size={20} className={active ? "text-white" : "group-hover:text-primary transition-colors"} />
+                  <span className="font-medium text-sm">{item.name}</span>
+                </div>
               );
             })}
           </nav>
@@ -136,7 +139,11 @@ const CpAdminLayout = ({ children }: CpAdminLayoutProps) => {
 
         {/* Content Area */}
         <div className="flex-1 p-4 md:p-8 lg:p-10 overflow-y-auto">
-          {children}
+          {activeTab === "dashboard" && <CpDashboard />}
+          {activeTab === "leads" && <CpLeads />}
+          {activeTab === "runAds" && <CpRunAds />}
+          {activeTab === "marketing" && <CpMarketingSupport />}
+          {activeTab === "profile" && <CpProfile />}
         </div>
       </main>
     </div>
