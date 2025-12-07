@@ -1,53 +1,45 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { MapPin, Users, Megaphone, ChevronDown, ChevronUp } from "lucide-react";
+import { mockCPActivity, getEngagementStatus } from "@/lib/mockDeveloperData";
 
 const Projects = () => {
-  const [expandedProject, setExpandedProject] = useState<number | null>(null);
+  const [expandedProject, setExpandedProject] = useState<string | null>(null);
 
-  const projects = [
-    {
-      id: 1,
-      name: "Skyline Heights",
-      location: "Zirakpur, Punjab",
-      cpCount: 42,
-      adsRunning: 15,
-      totalLeads: 856,
-      details: [
-        { cpName: "John Doe", company: "Apex Realty", leads: 124, hasAds: true },
-        { cpName: "Sarah Smith", company: "Dream Homes", leads: 85, hasAds: true },
-        { cpName: "Mike Johnson", company: "City Estates", leads: 42, hasAds: false },
-        { cpName: "Priya Sharma", company: "Sharma Associates", leads: 210, hasAds: true },
-      ]
-    },
-    {
-      id: 2,
-      name: "The Grand Villa",
-      location: "North Goa",
-      cpCount: 28,
-      adsRunning: 8,
-      totalLeads: 432,
-      details: [
-        { cpName: "Robert Wilson", company: "Goa Prime", leads: 150, hasAds: true },
-        { cpName: "Anita Desai", company: "Coastal Properties", leads: 95, hasAds: false },
-        { cpName: "Raj Malhotra", company: "Luxury Living", leads: 67, hasAds: true },
-      ]
-    },
-    {
-      id: 3,
-      name: "Tech Park One",
-      location: "Whitefield, Bangalore",
-      cpCount: 65,
-      adsRunning: 24,
-      totalLeads: 1240,
-      details: [
-        { cpName: "Vikram Singh", company: "Bangalore Realtors", leads: 320, hasAds: true },
-        { cpName: "Elena Rodriguez", company: "Global Spaces", leads: 180, hasAds: true },
-        { cpName: "David Chen", company: "Tech City Homes", leads: 145, hasAds: false },
-      ]
-    }
-  ];
+  // Group data by Project
+  const projects = useMemo(() => {
+    const grouped: Record<string, {
+      id: string;
+      name: string;
+      location: string;
+      cpCount: number;
+      adsRunning: number;
+      totalLeads: number;
+      details: typeof mockCPActivity;
+    }> = {};
 
-  const toggleExpand = (id: number) => {
+    mockCPActivity.forEach(activity => {
+      if (!grouped[activity.projectName]) {
+        grouped[activity.projectName] = {
+          id: activity.projectName, // Using name as ID for simplicity
+          name: activity.projectName,
+          location: "India", // Placeholder as it's not in mock data
+          cpCount: 0,
+          adsRunning: 0,
+          totalLeads: 0,
+          details: []
+        };
+      }
+      
+      grouped[activity.projectName].cpCount += 1;
+      if (activity.hasRunAds) grouped[activity.projectName].adsRunning += 1;
+      grouped[activity.projectName].totalLeads += activity.totalLeads;
+      grouped[activity.projectName].details.push(activity);
+    });
+
+    return Object.values(grouped);
+  }, []);
+
+  const toggleExpand = (id: string) => {
     if (expandedProject === id) {
       setExpandedProject(null);
     } else {
@@ -125,25 +117,34 @@ const Projects = () => {
                           <th className="px-6 py-4 font-medium">Company</th>
                           <th className="px-6 py-4 font-medium">Leads Generated</th>
                           <th className="px-6 py-4 font-medium">Running Ads?</th>
+                          <th className="px-6 py-4 font-medium">Engagement</th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-white/5 bg-[#0B0F1A]">
-                        {project.details.map((cp, idx) => (
-                          <tr key={idx} className="hover:bg-white/5 transition-colors">
-                            <td className="px-6 py-4 font-medium">{cp.cpName}</td>
-                            <td className="px-6 py-4 text-white/60">{cp.company}</td>
-                            <td className="px-6 py-4 font-bold">{cp.leads}</td>
-                            <td className="px-6 py-4">
-                              {cp.hasAds ? (
-                                <span className="inline-flex items-center gap-1 text-green-400 text-xs font-bold uppercase">
-                                  <span className="w-2 h-2 rounded-full bg-green-400"></span> Yes
+                        {project.details.map((cp, idx) => {
+                          const status = getEngagementStatus(cp.totalLeads);
+                          return (
+                            <tr key={idx} className="hover:bg-white/5 transition-colors">
+                              <td className="px-6 py-4 font-medium">{cp.cpName}</td>
+                              <td className="px-6 py-4 text-white/60">{cp.company}</td>
+                              <td className="px-6 py-4 font-bold">{cp.totalLeads}</td>
+                              <td className="px-6 py-4">
+                                {cp.hasRunAds ? (
+                                  <span className="inline-flex items-center gap-1 text-green-400 text-xs font-bold uppercase">
+                                    <span className="w-2 h-2 rounded-full bg-green-400"></span> Yes
+                                  </span>
+                                ) : (
+                                  <span className="text-white/30 text-xs font-bold uppercase">No</span>
+                                )}
+                              </td>
+                              <td className="px-6 py-4">
+                                <span className={`px-3 py-1 rounded-full text-xs font-bold ${status.bg} ${status.color}`}>
+                                  {status.label}
                                 </span>
-                              ) : (
-                                <span className="text-white/30 text-xs font-bold uppercase">No</span>
-                              )}
-                            </td>
-                          </tr>
-                        ))}
+                              </td>
+                            </tr>
+                          );
+                        })}
                       </tbody>
                     </table>
                   </div>

@@ -1,49 +1,37 @@
-import React from "react";
-import { Mail, Phone, MapPin } from "lucide-react";
+import React, { useMemo } from "react";
+import { Mail, Phone } from "lucide-react";
+import { mockCPActivity } from "@/lib/mockDeveloperData";
 
 const Partners = () => {
-  const partners = [
-    {
-      id: 1,
-      name: "John Doe",
-      company: "Apex Realty",
-      city: "Chandigarh",
-      projects: 3,
-      totalLeads: 245
-    },
-    {
-      id: 2,
-      name: "Priya Sharma",
-      company: "Sharma Associates",
-      city: "Zirakpur",
-      projects: 1,
-      totalLeads: 210
-    },
-    {
-      id: 3,
-      name: "Vikram Singh",
-      company: "Bangalore Realtors",
-      city: "Bangalore",
-      projects: 2,
-      totalLeads: 320
-    },
-    {
-      id: 4,
-      name: "Robert Wilson",
-      company: "Goa Prime",
-      city: "Goa",
-      projects: 1,
-      totalLeads: 150
-    },
-    {
-      id: 5,
-      name: "Sarah Smith",
-      company: "Dream Homes",
-      city: "Mohali",
-      projects: 2,
-      totalLeads: 85
-    }
-  ];
+  // Aggregate CP Data across projects
+  const partners = useMemo(() => {
+    const cpMap: Record<string, {
+      name: string;
+      company: string;
+      city: string;
+      projects: Set<string>;
+      totalLeads: number;
+    }> = {};
+
+    mockCPActivity.forEach(activity => {
+      const key = `${activity.cpName}-${activity.company}`; // Unique key based on name+company
+      if (!cpMap[key]) {
+        cpMap[key] = {
+          name: activity.cpName,
+          company: activity.company,
+          city: activity.city,
+          projects: new Set(),
+          totalLeads: 0
+        };
+      }
+      
+      cpMap[key].projects.add(activity.projectName);
+      cpMap[key].totalLeads += activity.totalLeads;
+    });
+
+    // Convert to array and sort by leads descending
+    return Object.values(cpMap).sort((a, b) => b.totalLeads - a.totalLeads);
+  }, []);
 
   return (
     <div className="space-y-8">
@@ -66,8 +54,8 @@ const Partners = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-white/5">
-              {partners.map((partner) => (
-                <tr key={partner.id} className="hover:bg-white/5 transition-colors">
+              {partners.map((partner, idx) => (
+                <tr key={idx} className="hover:bg-white/5 transition-colors">
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-3">
                       <div className="w-8 h-8 rounded-full bg-gradient-to-br from-white/20 to-white/5 flex items-center justify-center font-bold text-xs">
@@ -80,7 +68,7 @@ const Partners = () => {
                   <td className="px-6 py-4 text-white/60">{partner.city}</td>
                   <td className="px-6 py-4">
                     <span className="px-3 py-1 bg-white/5 rounded-full text-xs font-bold text-white/80 border border-white/10">
-                      {partner.projects} Projects
+                      {partner.projects.size} Projects
                     </span>
                   </td>
                   <td className="px-6 py-4 font-bold text-primary">{partner.totalLeads}</td>

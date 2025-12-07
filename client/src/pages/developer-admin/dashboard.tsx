@@ -1,39 +1,50 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { Users, Megaphone, CheckCircle, BarChart3 } from "lucide-react";
+import { mockCPActivity, getProjectStatus } from "@/lib/mockDeveloperData";
 
 const DeveloperDashboard = () => {
-  const projects = [
-    {
-      id: 1,
-      name: "Skyline Heights, Zirakpur",
-      cpCount: 42,
-      adsRunning: 15,
-      totalLeads: 856,
-      status: "Active"
-    },
-    {
-      id: 2,
-      name: "The Grand Villa, Goa",
-      cpCount: 28,
-      adsRunning: 8,
-      totalLeads: 432,
-      status: "Pre-Launch"
-    },
-    {
-      id: 3,
-      name: "Tech Park One, Bangalore",
-      cpCount: 65,
-      adsRunning: 24,
-      totalLeads: 1240,
-      status: "Active"
-    }
-  ];
+  // Aggregate Data by Project
+  const projectSummaries = useMemo(() => {
+    const summaries: Record<string, {
+      name: string;
+      cpCount: number;
+      adsRunning: number;
+      totalLeads: number;
+    }> = {};
+
+    mockCPActivity.forEach(activity => {
+      if (!summaries[activity.projectName]) {
+        summaries[activity.projectName] = {
+          name: activity.projectName,
+          cpCount: 0,
+          adsRunning: 0,
+          totalLeads: 0
+        };
+      }
+      
+      summaries[activity.projectName].cpCount += 1;
+      if (activity.hasRunAds) summaries[activity.projectName].adsRunning += 1;
+      summaries[activity.projectName].totalLeads += activity.totalLeads;
+    });
+
+    return Object.values(summaries);
+  }, []);
+
+  // Calculate Global Stats
+  const globalStats = useMemo(() => {
+    return {
+      totalProjects: projectSummaries.length,
+      activeCPs: mockCPActivity.length,
+      adsRunning: mockCPActivity.filter(cp => cp.hasRunAds).length,
+      totalLeads: mockCPActivity.reduce((sum, cp) => sum + cp.totalLeads, 0)
+    };
+  }, [projectSummaries]);
 
   const stats = [
-    { label: "Total Projects", value: "3", icon: CheckCircle, color: "text-blue-400" },
-    { label: "Active CPs", value: "135", icon: Users, color: "text-orange-400" },
-    { label: "Ads Running", value: "47", icon: Megaphone, color: "text-purple-400" },
-    { label: "Total Leads", value: "2,528", icon: BarChart3, color: "text-green-400" }
+    { label: "Total Projects", value: globalStats.totalProjects.toString(), icon: CheckCircle, color: "text-blue-400" },
+    { label: "Active CPs", value: globalStats.activeCPs.toString(), icon: Users, color: "text-orange-400" },
+    { label: "Ads Running", value: globalStats.adsRunning.toString(), icon: Megaphone, color: "text-purple-400" },
+    { label: "Total Leads", value: globalStats.totalLeads.toLocaleString(), icon: BarChart3, color: "text-green-400" }
   ];
 
   return (
@@ -73,21 +84,22 @@ const DeveloperDashboard = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-white/5">
-              {projects.map((project) => (
-                <tr key={project.id} className="hover:bg-white/5 transition-colors">
-                  <td className="px-6 py-4 font-medium">{project.name}</td>
-                  <td className="px-6 py-4 text-white/80">{project.cpCount}</td>
-                  <td className="px-6 py-4 text-white/80">{project.adsRunning}</td>
-                  <td className="px-6 py-4 text-white/80">{project.totalLeads}</td>
-                  <td className="px-6 py-4">
-                    <span className={`px-3 py-1 rounded-full text-xs font-bold ${
-                      project.status === 'Active' ? 'bg-green-500/20 text-green-400' : 'bg-orange-500/20 text-orange-400'
-                    }`}>
-                      {project.status}
-                    </span>
-                  </td>
-                </tr>
-              ))}
+              {projectSummaries.map((project, idx) => {
+                 const status = getProjectStatus(project.totalLeads);
+                 return (
+                  <tr key={idx} className="hover:bg-white/5 transition-colors">
+                    <td className="px-6 py-4 font-medium">{project.name}</td>
+                    <td className="px-6 py-4 text-white/80">{project.cpCount}</td>
+                    <td className="px-6 py-4 text-white/80">{project.adsRunning}</td>
+                    <td className="px-6 py-4 text-white/80">{project.totalLeads}</td>
+                    <td className="px-6 py-4">
+                      <span className={`px-3 py-1 rounded-full text-xs font-bold ${status.bg} ${status.color}`}>
+                        {status.label}
+                      </span>
+                    </td>
+                  </tr>
+                 );
+              })}
             </tbody>
           </table>
         </div>

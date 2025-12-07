@@ -1,21 +1,37 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { BarChart3, Palette, Mail } from "lucide-react";
+import { mockCPActivity } from "@/lib/mockDeveloperData";
 
 const Marketing = () => {
-  const marketingData = [
-    { id: 1, date: "2024-03-10", type: "Creative", project: "Skyline Heights", count: 12 },
-    { id: 2, date: "2024-03-09", type: "EDM", project: "The Grand Villa", count: 450 },
-    { id: 3, date: "2024-03-08", type: "Creative", project: "Tech Park One", count: 8 },
-    { id: 4, date: "2024-03-08", type: "EDM", project: "Skyline Heights", count: 1200 },
-    { id: 5, date: "2024-03-05", type: "Creative", project: "Skyline Heights", count: 5 },
-  ];
+  
+  // Calculate Summaries
+  const stats = useMemo(() => {
+    let creatives = 0;
+    let edms = 0;
+    
+    mockCPActivity.forEach(item => {
+      creatives += item.creativesReceived;
+      edms += item.edmSent;
+    });
 
-  const stats = [
-    { label: "Creatives Today", value: "4", icon: Palette, color: "text-pink-400" },
-    { label: "Creatives This Month", value: "28", icon: Palette, color: "text-purple-400" },
-    { label: "Total Creatives", value: "156", icon: Palette, color: "text-blue-400" },
-    { label: "Total EDMs Sent", value: "45.2k", icon: Mail, color: "text-orange-400" }
-  ];
+    return [
+      { label: "Creatives Today", value: "0", icon: Palette, color: "text-pink-400" }, // Mock 0 for "today"
+      { label: "Creatives This Month", value: creatives.toString(), icon: Palette, color: "text-purple-400" },
+      { label: "Total Creatives", value: (creatives + 50).toString(), icon: Palette, color: "text-blue-400" }, // Add base offset
+      { label: "Total EDMs Sent", value: (edms + 1000).toLocaleString(), icon: Mail, color: "text-orange-400" } // Add base offset
+    ];
+  }, []);
+
+  // Generate Table Data (Simplified Mock Activity Log)
+  const activityLog = useMemo(() => {
+    return [
+      { date: "Today", type: "Creative", project: "Lutyens", count: 2 },
+      { date: "Yesterday", type: "EDM", project: "Lutyens", count: 2000 },
+      { date: "Yesterday", type: "Creative", project: "California State", count: 1 },
+      { date: "Mar 10", type: "EDM", project: "Sky City", count: 5000 },
+      { date: "Mar 08", type: "Creative", project: "Lutyens", count: 3 },
+    ];
+  }, []);
 
   return (
     <div className="space-y-8">
@@ -57,8 +73,8 @@ const Marketing = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-white/5">
-              {marketingData.map((item) => (
-                <tr key={item.id} className="hover:bg-white/5 transition-colors">
+              {activityLog.map((item, idx) => (
+                <tr key={idx} className="hover:bg-white/5 transition-colors">
                   <td className="px-6 py-4 text-white/80">{item.date}</td>
                   <td className="px-6 py-4">
                     <span className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold ${
