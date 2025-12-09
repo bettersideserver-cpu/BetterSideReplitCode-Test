@@ -43,10 +43,16 @@ const Navbar = () => {
             <span className="absolute -bottom-1 left-0 w-0 h-[2px] bg-[#FF6A00] transition-all duration-300 group-hover:w-full"></span>
           </span>
         </Link>
-        {["Explore", "About", "Contact"].map((item) => (
+        {["Explore", "Blog", "About", "Contact"].map((item) => (
           <a
             key={item}
-            href="#"
+            href={item === "Blog" ? "/#blog-section" : "#"}
+            onClick={(e) => {
+              if (item === "Blog" && window.location.pathname === '/') {
+                e.preventDefault();
+                document.getElementById('blog-section')?.scrollIntoView({ behavior: 'smooth' });
+              }
+            }}
             className="text-sm font-medium text-white transition-all tracking-wide relative group"
           >
             {item}
@@ -102,8 +108,19 @@ const Navbar = () => {
       {/* Mobile Nav Overlay */}
       {isOpen && (
         <div className="absolute top-full left-0 right-0 bg-[#050816] border-b border-white/10 p-6 flex flex-col gap-4 md:hidden animate-in slide-in-from-top-2">
-          {["Explore", "About", "Contact"].map((item) => (
-            <a key={item} href="#" className="text-white hover:text-[#FF6A00] py-2 text-lg font-medium transition-colors">
+          {["Explore", "Blog", "About", "Contact"].map((item) => (
+            <a 
+              key={item} 
+              href={item === "Blog" ? "/#blog-section" : "#"}
+              onClick={(e) => {
+                if (item === "Blog" && window.location.pathname === '/') {
+                  e.preventDefault();
+                  document.getElementById('blog-section')?.scrollIntoView({ behavior: 'smooth' });
+                  setIsOpen(false);
+                }
+              }}
+              className="text-white hover:text-[#FF6A00] py-2 text-lg font-medium transition-colors"
+            >
               {item}
             </a>
           ))}
@@ -370,6 +387,55 @@ const FeaturedProjectsList = () => {
   );
 };
 
+const BlogSection = () => {
+  const posts = [
+    {
+      title: "The Future of Virtual Real Estate Tours",
+      category: "Technology",
+      date: "Oct 12, 2024",
+      image: project1
+    },
+    {
+      title: "Why Pre-Launch Investments Yield Better Returns",
+      category: "Investment",
+      date: "Nov 05, 2024",
+      image: project2
+    },
+    {
+      title: "Sustainable Living: The New Standard",
+      category: "Trends",
+      date: "Dec 01, 2024",
+      image: project3
+    }
+  ];
+
+  return (
+    <section id="blog-section" className="py-24 bg-[#050816] px-6 md:px-12 border-t border-white/5">
+      <div className="max-w-7xl mx-auto">
+        <div className="mb-12">
+          <h2 className="text-3xl md:text-5xl font-display font-bold text-white mb-3">Latest Insights</h2>
+          <p className="text-white/60 text-lg">Trends, analysis, and news from the world of real estate.</p>
+        </div>
+        
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          {posts.map((post, i) => (
+             <div key={i} className="group cursor-pointer">
+               <div className="relative aspect-[4/3] rounded-2xl overflow-hidden mb-6 bg-white/5">
+                 <img src={post.image} alt={post.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                 <div className="absolute top-4 left-4 bg-black/50 backdrop-blur-md border border-white/10 px-3 py-1 rounded-full text-xs font-bold text-white uppercase tracking-wider">
+                   {post.category}
+                 </div>
+               </div>
+               <p className="text-accent text-sm font-bold mb-2">{post.date}</p>
+               <h3 className="text-2xl font-display font-bold text-white leading-tight group-hover:text-primary transition-colors">{post.title}</h3>
+             </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+};
+
 const Footer = () => {
   return (
     <footer className="bg-black py-20 px-6 md:px-12 border-t border-white/10">
@@ -455,6 +521,7 @@ const HomePage = () => {
       <HeroSection />
       <DiscoverProjectsSection />
       <FeaturedProjectsList />
+      <BlogSection />
       <Footer />
     </div>
   );
