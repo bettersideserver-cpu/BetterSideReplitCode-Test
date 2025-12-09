@@ -10,7 +10,8 @@ import {
   LogOut,
   Menu,
   X,
-  ArrowLeft
+  ArrowLeft,
+  Home
 } from "lucide-react";
 import logoIcon from "@assets/generated_images/simple_abstract_logo_icon.png";
 
@@ -46,6 +47,7 @@ const DeveloperAdminLayout = ({ children }: DeveloperAdminLayoutProps) => {
   };
 
   const navigation = [
+    { id: "home", name: "Home", icon: Home, action: () => setLocation("/") },
     { id: "dashboard", name: "Dashboard", icon: LayoutDashboard },
     { id: "projects", name: "Projects", icon: Building2 },
     { id: "partners", name: "Channel Partners", icon: Users },
@@ -98,7 +100,12 @@ const DeveloperAdminLayout = ({ children }: DeveloperAdminLayoutProps) => {
                 <div 
                   key={item.id}
                   onClick={() => {
-                    setActiveTab(item.id);
+                    if (item.action) {
+                      item.action();
+                    } else {
+                      // @ts-ignore
+                      setActiveTab(item.id);
+                    }
                     setIsSidebarOpen(false);
                   }}
                   className={`

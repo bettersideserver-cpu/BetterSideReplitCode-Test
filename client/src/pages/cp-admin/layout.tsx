@@ -9,7 +9,8 @@ import {
   LogOut,
   Menu,
   X,
-  ArrowLeft
+  ArrowLeft,
+  Home
 } from "lucide-react";
 import logoIcon from "@assets/generated_images/simple_abstract_logo_icon.png";
 
@@ -42,6 +43,7 @@ const CpAdminLayout = ({ children }: CpAdminLayoutProps) => {
   };
 
   const navigation = [
+    { id: "home", name: "Home", icon: Home, action: () => setLocation("/") },
     { id: "dashboard", name: "Dashboard", icon: LayoutDashboard },
     { id: "leads", name: "Leads", icon: Users },
     { id: "runAds", name: "Run Ads", icon: Megaphone },
@@ -93,7 +95,12 @@ const CpAdminLayout = ({ children }: CpAdminLayoutProps) => {
                 <div 
                   key={item.id}
                   onClick={() => {
-                    setActiveTab(item.id);
+                    if (item.action) {
+                      item.action();
+                    } else {
+                      // @ts-ignore
+                      setActiveTab(item.id);
+                    }
                     setIsSidebarOpen(false);
                   }}
                   className={`
