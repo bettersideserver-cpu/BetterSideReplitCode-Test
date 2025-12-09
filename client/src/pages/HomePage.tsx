@@ -1,6 +1,6 @@
 import React, { useRef, useState } from "react";
 import { Link } from "wouter";
-import { Play, ChevronRight, Menu, X, User, Facebook, Instagram, Twitter, Linkedin, Mail } from "lucide-react";
+import { Play, ChevronRight, Menu, X, User, Facebook, Instagram, Twitter, Linkedin, Mail, MapPin, Phone } from "lucide-react";
 import heroBg from "@assets/generated_images/futuristic_luxury_skyscraper_at_twilight.png";
 import logoIcon from "@assets/generated_images/simple_abstract_logo_icon.png";
 import project1 from "@assets/generated_images/luxury_apartment_interior_evening.png";
@@ -46,11 +46,12 @@ const Navbar = () => {
         {["Explore", "Blog", "About", "Contact"].map((item) => (
           <a
             key={item}
-            href={item === "Blog" ? "/#blog-section" : "#"}
+            href={item === "Blog" ? "/#blog-section" : item === "Contact" ? "/#contact-section" : "#"}
             onClick={(e) => {
-              if (item === "Blog" && window.location.pathname === '/') {
+              if ((item === "Blog" || item === "Contact") && window.location.pathname === '/') {
                 e.preventDefault();
-                document.getElementById('blog-section')?.scrollIntoView({ behavior: 'smooth' });
+                const sectionId = item === "Blog" ? 'blog-section' : 'contact-section';
+                document.getElementById(sectionId)?.scrollIntoView({ behavior: 'smooth' });
               }
             }}
             className="text-sm font-medium text-white transition-all tracking-wide relative group"
@@ -111,11 +112,12 @@ const Navbar = () => {
           {["Explore", "Blog", "About", "Contact"].map((item) => (
             <a 
               key={item} 
-              href={item === "Blog" ? "/#blog-section" : "#"}
+              href={item === "Blog" ? "/#blog-section" : item === "Contact" ? "/#contact-section" : "#"}
               onClick={(e) => {
-                if (item === "Blog" && window.location.pathname === '/') {
+                if ((item === "Blog" || item === "Contact") && window.location.pathname === '/') {
                   e.preventDefault();
-                  document.getElementById('blog-section')?.scrollIntoView({ behavior: 'smooth' });
+                  const sectionId = item === "Blog" ? 'blog-section' : 'contact-section';
+                  document.getElementById(sectionId)?.scrollIntoView({ behavior: 'smooth' });
                   setIsOpen(false);
                 }
               }}
@@ -436,6 +438,83 @@ const BlogSection = () => {
   );
 };
 
+const ContactSection = () => {
+  return (
+    <section id="contact-section" className="py-24 bg-[#050816] px-6 md:px-12 border-t border-white/5">
+      <div className="max-w-7xl mx-auto">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+          
+          {/* Contact Details */}
+          <div>
+            <span className="text-accent font-bold tracking-widest text-xs uppercase mb-4 block">Get in Touch</span>
+            <h2 className="text-4xl md:text-6xl font-display font-bold text-white mb-6">Let's build the future together.</h2>
+            <p className="text-white/60 text-lg mb-12 max-w-md">
+              Whether you're a developer, channel partner, or home buyer, we're here to help you experience real estate in a whole new way.
+            </p>
+
+            <div className="space-y-8">
+              <div className="flex items-start gap-4">
+                <div className="w-12 h-12 rounded-full bg-white/5 flex items-center justify-center text-primary flex-shrink-0">
+                  <Phone size={24} />
+                </div>
+                <div>
+                  <h3 className="text-white font-bold text-lg mb-1">Call Us</h3>
+                  <a href="tel:+917986519697" className="text-white/70 hover:text-white transition-colors text-lg">
+                    +91 79865 19697
+                  </a>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-4">
+                <div className="w-12 h-12 rounded-full bg-white/5 flex items-center justify-center text-primary flex-shrink-0">
+                  <Mail size={24} />
+                </div>
+                <div>
+                  <h3 className="text-white font-bold text-lg mb-1">Email Us</h3>
+                  <a href="mailto:betterside.in@gmail.com" className="text-white/70 hover:text-white transition-colors text-lg">
+                    betterside.in@gmail.com
+                  </a>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-4">
+                <div className="w-12 h-12 rounded-full bg-white/5 flex items-center justify-center text-primary flex-shrink-0">
+                  <MapPin size={24} />
+                </div>
+                <div>
+                  <h3 className="text-white font-bold text-lg mb-1">Visit Us</h3>
+                  <p className="text-white/70 text-lg">
+                    BetterSide Studio, Zirakpur,<br />Punjab, India
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Map */}
+          <div className="relative w-full aspect-square md:aspect-video lg:aspect-square rounded-3xl overflow-hidden border border-white/10 shadow-2xl shadow-primary/5 group">
+             {/* Simple Map Placeholder / Embed */}
+             <iframe 
+               src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d54907.62343906236!2d76.822835!3d30.642549!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x390f93630f7d636d%3A0x6b4f746194481d1e!2sZirakpur%2C%20Punjab!5e0!3m2!1sen!2sin!4v1716382958611!5m2!1sen!2sin" 
+               width="100%" 
+               height="100%" 
+               style={{ border: 0, filter: 'grayscale(100%) invert(92%) contrast(83%)' }} 
+               allowFullScreen 
+               loading="lazy" 
+               referrerPolicy="no-referrer-when-downgrade"
+               className="grayscale opacity-80 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-700"
+             ></iframe>
+             
+             {/* Decorative Overlay */}
+             <div className="absolute inset-0 pointer-events-none border border-white/10 rounded-3xl mix-blend-overlay"></div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+  );
+};
+
 const Footer = () => {
   return (
     <footer className="bg-black py-20 px-6 md:px-12 border-t border-white/10">
@@ -522,6 +601,7 @@ const HomePage = () => {
       <DiscoverProjectsSection />
       <FeaturedProjectsList />
       <BlogSection />
+      <ContactSection />
       <Footer />
     </div>
   );
