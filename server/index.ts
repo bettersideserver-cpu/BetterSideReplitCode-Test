@@ -2,6 +2,9 @@ import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { serveStatic } from "./static";
 import { createServer } from "http";
+import session from "express-session";
+import pgSession from "connect-pg-simple";
+import { pool } from "./db";
 
 const app = express();
 const httpServer = createServer(app);
@@ -11,6 +14,32 @@ declare module "http" {
     rawBody: unknown;
   }
 }
+
+declare module "express-session" {
+  interface SessionData {
+    userId: string;
+  }
+}
+
+const PgStore = pgSession(session);
+
+app.use(
+  session({
+    store: new PgStore({
+      pool,
+      createTableIfMissing: true,
+    }),
+    secret: process.env.SESSION_SECRET || "betterside-session-secret-key-change-in-production",
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+    },
+  })
+);
 
 app.use(
   express.json({

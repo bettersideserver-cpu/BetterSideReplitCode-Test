@@ -3,17 +3,20 @@ import { useLocation } from "wouter";
 import { User, Building, Briefcase, ArrowLeft } from "lucide-react";
 import logoIcon from "@assets/generated_images/simple_abstract_logo_icon.png";
 import heroBg from "@assets/generated_images/futuristic_luxury_skyscraper_at_twilight.png";
+import { register } from "../lib/api";
 
 const Login = () => {
   const [step, setStep] = useState<1 | 2>(1);
   const [role, setRole] = useState<"Home Buyer / Investor" | "Channel Partner" | "Developer" | null>(null);
   const [, setLocation] = useLocation();
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Form States
   const [formData, setFormData] = useState({
     fullName: "",
     phone: "",
     email: "",
+    password: "",
     city: "",
     companyName: "", // For CP & Developer
     contactPerson: "", // For Developer
@@ -26,6 +29,7 @@ const Login = () => {
 
   // Error State
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [apiError, setApiError] = useState<string>("");
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLInputElement>) => {
     const { name, value, type } = e.target;
@@ -77,6 +81,10 @@ const Login = () => {
       newErrors.city = "Please enter a valid city name (letters only, min 3 chars).";
     }
 
+    if (!formData.password || formData.password.length < 6) {
+      newErrors.password = "Password must be at least 6 characters.";
+    }
+
     // Role Specific Validation
     if (role === "Home Buyer / Investor") {
        if (formData.budget && (isNaN(Number(formData.budget)) || Number(formData.budget) < 0)) {
@@ -110,38 +118,71 @@ const Login = () => {
     setErrors({}); // Clear errors when switching roles
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!validate()) {
       return;
     }
     
-    // Save to localStorage
-    let userRole = "buyer";
-    let userName = formData.fullName;
+    setIsSubmitting(true);
+    setApiError("");
 
-    if (role === "Channel Partner") {
-      userRole = "cp";
-      localStorage.setItem("userCompany", formData.companyName);
-      localStorage.setItem("userPhone", formData.phone);
-      localStorage.setItem("userEmail", formData.email);
-      localStorage.setItem("userCity", formData.city);
-    } else if (role === "Developer") {
-      userRole = "developer";
-      userName = formData.contactPerson || formData.fullName; // Use contact person for dev
-    }
+    try {
+      let userRole = "buyer";
+      let userName = formData.fullName;
 
-    localStorage.setItem("userRole", userRole);
-    localStorage.setItem("userName", userName);
-    
-    // Redirect
-    if (userRole === "cp") {
-      setLocation("/cp-dashboard");
-    } else if (userRole === "developer") {
-      setLocation("/developer-dashboard");
-    } else {
-      setLocation("/");
+      if (role === "Channel Partner") {
+        userRole = "cp";
+      } else if (role === "Developer") {
+        userRole = "developer";
+        userName = formData.contactPerson || formData.fullName;
+      }
+
+      const user = await register({
+        fullName: userName,
+        email: formData.email,
+        phone: formData.phone,
+        password: formData.password,
+        city: formData.city,
+        role: userRole,
+        companyName: formData.companyName || undefined,
+        contactPerson: formData.contactPerson || undefined,
+        gstNumber: formData.gstNumber || undefined,
+        reraNumber: formData.reraNumber || undefined,
+        isReraRegistered: formData.isReraRegistered,
+        docLink: formData.docLink || undefined,
+        budget: formData.budget || undefined,
+      });
+
+      // Store in localStorage for quick access
+      localStorage.setItem("userRole", user.role);
+      localStorage.setItem("userName", user.fullName);
+      if (user.companyName) {
+        localStorage.setItem("userCompany", user.companyName);
+      }
+      if (user.phone) {
+        localStorage.setItem("userPhone", user.phone);
+      }
+      if (user.email) {
+        localStorage.setItem("userEmail", user.email);
+      }
+      if (user.city) {
+        localStorage.setItem("userCity", user.city);
+      }
+
+      // Redirect
+      if (user.role === "cp") {
+        setLocation("/cp-dashboard");
+      } else if (user.role === "developer") {
+        setLocation("/developer-dashboard");
+      } else {
+        setLocation("/");
+      }
+    } catch (error) {
+      setApiError(error instanceof Error ? error.message : "Registration failed");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -303,6 +344,20 @@ const Login = () => {
                {errors.city && <p className="text-red-500 text-xs mt-1">{errors.city}</p>}
             </div>
 
+            <div>
+               <label className="block text-xs font-bold text-white/60 uppercase mb-1">Password</label>
+               <input 
+                 name="password"
+                 type="password"
+                 value={formData.password}
+                 onChange={handleInputChange}
+                 className={`w-full bg-[#050816] border ${errors.password ? 'border-red-500' : 'border-white/10'} rounded-lg px-4 py-3 text-white focus:outline-none focus:border-primary transition-all`}
+                 placeholder="Minimum 6 characters"
+                 data-testid="input-password"
+               />
+               {errors.password && <p className="text-red-500 text-xs mt-1">{errors.password}</p>}
+            </div>
+
             {role === "Home Buyer / Investor" && (
               <div>
                  <label className="block text-xs font-bold text-white/60 uppercase mb-1">Budget (Optional)</label>
@@ -370,11 +425,19 @@ const Login = () => {
               </>
             )}
 
+            {apiError && (
+              <div className="p-4 bg-red-500/10 border border-red-500/20 rounded-lg">
+                <p className="text-red-500 text-sm">{apiError}</p>
+              </div>
+            )}
+
             <button 
               type="submit"
-              className="w-full py-4 bg-primary hover:bg-primary/90 text-white rounded-xl font-bold shadow-lg shadow-primary/20 transition-all transform hover:scale-[1.02] mt-6"
+              disabled={isSubmitting}
+              className="w-full py-4 bg-primary hover:bg-primary/90 text-white rounded-xl font-bold shadow-lg shadow-primary/20 transition-all transform hover:scale-[1.02] mt-6 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+              data-testid="button-submit"
             >
-              Complete Registration
+              {isSubmitting ? "Creating Account..." : "Complete Registration"}
             </button>
           </form>
         )}
