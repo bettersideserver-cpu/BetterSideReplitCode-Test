@@ -19,13 +19,23 @@ const CpDashboard = () => {
     { id: 5, name: "Vikram Malhotra", phone: "+91 77665 54433", project: "Cyber City Hub", source: "Referral", time: "03:10 PM", status: "Follow-up" },
   ];
 
-  const userName = localStorage.getItem("userName") || "Partner";
+  const rawName = localStorage.getItem("userName") || "Channel Partner";
+
+  const formatName = (name: string) => {
+    return name
+      .split(" ")
+      .filter(Boolean)
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+      .join(" ");
+  };
+
+  const formattedName = formatName(rawName);
 
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-display font-bold text-white mb-2">Welcome back, {userName}!</h1>
+        <h1 className="text-3xl font-display font-bold text-white mb-2">Welcome, {formattedName}!</h1>
         <p className="text-white/60">Here's what's happening with your projects today.</p>
       </div>
 
