@@ -24,19 +24,98 @@ const Login = () => {
     budget: "", // For Buyer
   });
 
+  // Error State
+  const [errors, setErrors] = useState<Record<string, string>>({});
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLInputElement>) => {
     const { name, value, type } = e.target;
     const val = type === 'checkbox' ? (e.target as HTMLInputElement).checked : value;
     setFormData(prev => ({ ...prev, [name]: val }));
+    // Clear error when user types
+    if (errors[name]) {
+      setErrors(prev => ({ ...prev, [name]: "" }));
+    }
+  };
+
+  const validate = () => {
+    const newErrors: Record<string, string> = {};
+    const phoneRegex = /^[6-9][0-9]{9}$/;
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const cityRegex = /^[A-Za-z\s]{3,}$/;
+    const gstRegex = /^[A-Z0-9]{15}$/i;
+    const reraRegex = /^[A-Za-z0-9\/\-]{8,}$/;
+
+    // Common Validation
+    if (role !== "Developer") {
+       if (!formData.fullName.trim() || formData.fullName.trim().length < 3) {
+         newErrors.fullName = "Name must be at least 3 characters.";
+       }
+    } else {
+       if (!formData.companyName.trim() || formData.companyName.trim().length < 3) {
+         newErrors.companyName = "Developer/Group Name must be at least 3 characters.";
+       }
+       if (!formData.contactPerson.trim() || formData.contactPerson.trim().length < 3) {
+         newErrors.contactPerson = "Contact Person Name must be at least 3 characters.";
+       }
+    }
+
+    if (role === "Channel Partner") {
+       if (!formData.companyName.trim() || formData.companyName.trim().length < 2) {
+         newErrors.companyName = "Company Name must be at least 2 characters.";
+       }
+    }
+
+    if (!formData.phone || !phoneRegex.test(formData.phone)) {
+      newErrors.phone = "Please enter a valid 10-digit mobile number.";
+    }
+
+    if (!formData.email || !emailRegex.test(formData.email)) {
+      newErrors.email = "Please enter a valid email address.";
+    }
+
+    if (!formData.city || !cityRegex.test(formData.city)) {
+      newErrors.city = "Please enter a valid city name (letters only, min 3 chars).";
+    }
+
+    // Role Specific Validation
+    if (role === "Home Buyer / Investor") {
+       if (formData.budget && (isNaN(Number(formData.budget)) || Number(formData.budget) < 0)) {
+         newErrors.budget = "Please enter a valid budget amount.";
+       }
+    }
+
+    if (role === "Developer") {
+       if (!formData.gstNumber || !gstRegex.test(formData.gstNumber)) {
+         newErrors.gstNumber = "GST number must be 15 characters (letters and numbers only).";
+       }
+       
+       if (formData.isReraRegistered) {
+          if (!formData.reraNumber || !reraRegex.test(formData.reraNumber)) {
+            newErrors.reraNumber = "RERA number format looks invalid. Please check and enter full RERA ID.";
+          }
+       }
+       
+       if (formData.docLink && !formData.docLink.startsWith("http://") && !formData.docLink.startsWith("https://")) {
+         newErrors.docLink = "Please enter a valid URL (starting with http:// or https://)";
+       }
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
   };
 
   const handleRoleSelect = (selectedRole: "Home Buyer / Investor" | "Channel Partner" | "Developer") => {
     setRole(selectedRole);
     setStep(2);
+    setErrors({}); // Clear errors when switching roles
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!validate()) {
+      return;
+    }
     
     // Save to localStorage
     let userRole = "buyer";
@@ -133,12 +212,12 @@ const Login = () => {
                  <label className="block text-xs font-bold text-white/60 uppercase mb-1">Full Name</label>
                  <input 
                    name="fullName"
-                   required
                    value={formData.fullName}
                    onChange={handleInputChange}
-                   className="w-full bg-[#050816] border border-white/10 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-primary transition-all"
+                   className={`w-full bg-[#050816] border ${errors.fullName ? 'border-red-500' : 'border-white/10'} rounded-lg px-4 py-3 text-white focus:outline-none focus:border-primary transition-all`}
                    placeholder="John Doe"
                  />
+                 {errors.fullName && <p className="text-red-500 text-xs mt-1">{errors.fullName}</p>}
               </div>
             )}
 
@@ -149,12 +228,12 @@ const Login = () => {
                    <label className="block text-xs font-bold text-white/60 uppercase mb-1">Company / Firm Name</label>
                    <input 
                      name="companyName"
-                     required
                      value={formData.companyName}
                      onChange={handleInputChange}
-                     className="w-full bg-[#050816] border border-white/10 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-primary transition-all"
+                     className={`w-full bg-[#050816] border ${errors.companyName ? 'border-red-500' : 'border-white/10'} rounded-lg px-4 py-3 text-white focus:outline-none focus:border-primary transition-all`}
                      placeholder="Apex Realty"
                    />
+                   {errors.companyName && <p className="text-red-500 text-xs mt-1">{errors.companyName}</p>}
                 </div>
               </>
             )}
@@ -165,23 +244,23 @@ const Login = () => {
                    <label className="block text-xs font-bold text-white/60 uppercase mb-1">Developer / Group Name</label>
                    <input 
                      name="companyName"
-                     required
                      value={formData.companyName}
                      onChange={handleInputChange}
-                     className="w-full bg-[#050816] border border-white/10 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-primary transition-all"
+                     className={`w-full bg-[#050816] border ${errors.companyName ? 'border-red-500' : 'border-white/10'} rounded-lg px-4 py-3 text-white focus:outline-none focus:border-primary transition-all`}
                      placeholder="Prestige Group"
                    />
+                   {errors.companyName && <p className="text-red-500 text-xs mt-1">{errors.companyName}</p>}
                 </div>
                  <div>
                    <label className="block text-xs font-bold text-white/60 uppercase mb-1">Contact Person Name</label>
                    <input 
                      name="contactPerson"
-                     required
                      value={formData.contactPerson}
                      onChange={handleInputChange}
-                     className="w-full bg-[#050816] border border-white/10 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-primary transition-all"
+                     className={`w-full bg-[#050816] border ${errors.contactPerson ? 'border-red-500' : 'border-white/10'} rounded-lg px-4 py-3 text-white focus:outline-none focus:border-primary transition-all`}
                      placeholder="Jane Smith"
                    />
+                   {errors.contactPerson && <p className="text-red-500 text-xs mt-1">{errors.contactPerson}</p>}
                 </div>
               </>
             )}
@@ -191,24 +270,24 @@ const Login = () => {
                  <label className="block text-xs font-bold text-white/60 uppercase mb-1">Phone</label>
                  <input 
                    name="phone"
-                   required
                    value={formData.phone}
                    onChange={handleInputChange}
-                   className="w-full bg-[#050816] border border-white/10 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-primary transition-all"
+                   className={`w-full bg-[#050816] border ${errors.phone ? 'border-red-500' : 'border-white/10'} rounded-lg px-4 py-3 text-white focus:outline-none focus:border-primary transition-all`}
                    placeholder="+91 98765..."
                  />
+                 {errors.phone && <p className="text-red-500 text-xs mt-1">{errors.phone}</p>}
               </div>
               <div>
                  <label className="block text-xs font-bold text-white/60 uppercase mb-1">Email</label>
                  <input 
                    name="email"
-                   type="email"
-                   required
+                   type="text"
                    value={formData.email}
                    onChange={handleInputChange}
-                   className="w-full bg-[#050816] border border-white/10 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-primary transition-all"
+                   className={`w-full bg-[#050816] border ${errors.email ? 'border-red-500' : 'border-white/10'} rounded-lg px-4 py-3 text-white focus:outline-none focus:border-primary transition-all`}
                    placeholder="john@example.com"
                  />
+                 {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email}</p>}
               </div>
             </div>
 
@@ -216,12 +295,12 @@ const Login = () => {
                <label className="block text-xs font-bold text-white/60 uppercase mb-1">City</label>
                <input 
                  name="city"
-                 required
                  value={formData.city}
                  onChange={handleInputChange}
-                 className="w-full bg-[#050816] border border-white/10 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-primary transition-all"
+                 className={`w-full bg-[#050816] border ${errors.city ? 'border-red-500' : 'border-white/10'} rounded-lg px-4 py-3 text-white focus:outline-none focus:border-primary transition-all`}
                  placeholder="Mumbai"
                />
+               {errors.city && <p className="text-red-500 text-xs mt-1">{errors.city}</p>}
             </div>
 
             {role === "Home Buyer / Investor" && (
@@ -231,9 +310,10 @@ const Login = () => {
                    name="budget"
                    value={formData.budget}
                    onChange={handleInputChange}
-                   className="w-full bg-[#050816] border border-white/10 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-primary transition-all"
+                   className={`w-full bg-[#050816] border ${errors.budget ? 'border-red-500' : 'border-white/10'} rounded-lg px-4 py-3 text-white focus:outline-none focus:border-primary transition-all`}
                    placeholder="e.g. 1 Cr - 2 Cr"
                  />
+                 {errors.budget && <p className="text-red-500 text-xs mt-1">{errors.budget}</p>}
               </div>
             )}
 
@@ -244,23 +324,23 @@ const Login = () => {
                     <label className="block text-xs font-bold text-white/60 uppercase mb-1">GST Number</label>
                     <input 
                       name="gstNumber"
-                      required
                       value={formData.gstNumber}
                       onChange={handleInputChange}
-                      className="w-full bg-[#050816] border border-white/10 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-primary transition-all"
+                      className={`w-full bg-[#050816] border ${errors.gstNumber ? 'border-red-500' : 'border-white/10'} rounded-lg px-4 py-3 text-white focus:outline-none focus:border-primary transition-all`}
                       placeholder="22AAAAA0000A1Z5"
                     />
+                    {errors.gstNumber && <p className="text-red-500 text-xs mt-1">{errors.gstNumber}</p>}
                   </div>
                    <div>
                     <label className="block text-xs font-bold text-white/60 uppercase mb-1">RERA No.</label>
                     <input 
                       name="reraNumber"
-                      required
                       value={formData.reraNumber}
                       onChange={handleInputChange}
-                      className="w-full bg-[#050816] border border-white/10 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-primary transition-all"
+                      className={`w-full bg-[#050816] border ${errors.reraNumber ? 'border-red-500' : 'border-white/10'} rounded-lg px-4 py-3 text-white focus:outline-none focus:border-primary transition-all`}
                       placeholder="P51800000000"
                     />
+                    {errors.reraNumber && <p className="text-red-500 text-xs mt-1">{errors.reraNumber}</p>}
                   </div>
                 </div>
 
@@ -282,9 +362,10 @@ const Login = () => {
                      name="docLink"
                      value={formData.docLink}
                      onChange={handleInputChange}
-                     className="w-full bg-[#050816] border border-white/10 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-primary transition-all"
+                     className={`w-full bg-[#050816] border ${errors.docLink ? 'border-red-500' : 'border-white/10'} rounded-lg px-4 py-3 text-white focus:outline-none focus:border-primary transition-all`}
                      placeholder="Google Drive / Dropbox Link"
                    />
+                   {errors.docLink && <p className="text-red-500 text-xs mt-1">{errors.docLink}</p>}
                 </div>
               </>
             )}
