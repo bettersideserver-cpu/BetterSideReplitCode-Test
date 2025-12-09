@@ -9,7 +9,8 @@ import {
   UserCircle, 
   LogOut,
   Menu,
-  X
+  X,
+  ArrowLeft
 } from "lucide-react";
 import logoIcon from "@assets/generated_images/simple_abstract_logo_icon.png";
 
@@ -149,6 +150,15 @@ const DeveloperAdminLayout = ({ children }: DeveloperAdminLayoutProps) => {
 
         {/* Content Area */}
         <div className="flex-1 p-4 md:p-8 lg:p-10 overflow-y-auto">
+          <div className="flex justify-between items-center mb-6">
+             <Link href="/">
+               <button className="flex items-center gap-2 text-white/60 hover:text-white text-sm font-medium transition-colors px-3 py-2 rounded-lg hover:bg-white/5">
+                 <ArrowLeft size={16} />
+                 Back to Home
+               </button>
+             </Link>
+          </div>
+
           {activeTab === "dashboard" && <DeveloperDashboard />}
           {activeTab === "projects" && <Projects />}
           {activeTab === "partners" && <Partners />}

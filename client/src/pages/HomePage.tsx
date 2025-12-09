@@ -37,6 +37,12 @@ const Navbar = () => {
 
       {/* Desktop Nav */}
       <div className="hidden md:flex items-center gap-8">
+        <Link href="/">
+          <span className="text-sm font-medium text-white transition-all tracking-wide relative group cursor-pointer">
+            Home
+            <span className="absolute -bottom-1 left-0 w-0 h-[2px] bg-[#FF6A00] transition-all duration-300 group-hover:w-full"></span>
+          </span>
+        </Link>
         {["Explore", "About", "Contact"].map((item) => (
           <a
             key={item}
