@@ -116,7 +116,19 @@ export const insertLeadSchema = createInsertSchema(leads).omit({
   updatedAt: true,
 });
 
+export const updateLeadSchema = z.object({
+  customerName: z.string().optional(),
+  customerPhone: z.string().optional(),
+  customerEmail: z.string().optional(),
+  customerCity: z.string().optional(),
+  budget: z.string().optional(),
+  status: z.enum(["new", "contacted", "site_visit", "negotiation", "converted", "lost"]).optional(),
+  notes: z.string().optional(),
+  source: z.string().optional(),
+}).strict();
+
 export type InsertLead = z.infer<typeof insertLeadSchema>;
+export type UpdateLead = z.infer<typeof updateLeadSchema>;
 export type Lead = typeof leads.$inferSelect;
 
 // Ads table - Advertising campaigns
@@ -146,5 +158,16 @@ export const insertAdSchema = createInsertSchema(ads).omit({
   updatedAt: true,
 });
 
+export const updateAdSchema = z.object({
+  title: z.string().optional(),
+  description: z.string().optional(),
+  budget: z.number().optional(),
+  startDate: z.coerce.date().optional(),
+  endDate: z.coerce.date().optional(),
+  status: z.enum(["draft", "pending", "active", "paused", "completed", "cancelled"]).optional(),
+  platform: z.enum(["facebook", "instagram", "google", "all"]).optional(),
+}).strict();
+
 export type InsertAd = z.infer<typeof insertAdSchema>;
+export type UpdateAd = z.infer<typeof updateAdSchema>;
 export type Ad = typeof ads.$inferSelect;

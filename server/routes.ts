@@ -3,7 +3,8 @@ import { type Server } from "http";
 import { storage } from "./storage";
 import { 
   insertUserSchema, loginSchema, 
-  insertProjectSchema, insertLeadSchema, insertAdSchema, insertCpProjectMapSchema 
+  insertProjectSchema, insertLeadSchema, insertAdSchema, insertCpProjectMapSchema,
+  updateLeadSchema, updateAdSchema
 } from "@shared/schema";
 import { fromZodError } from "zod-validation-error";
 import bcrypt from "bcryptjs";
@@ -260,10 +261,26 @@ export async function registerRoutes(
   // Get single lead
   app.get("/api/leads/:id", requireAuth, async (req, res) => {
     try {
+      const user = await storage.getUser(req.session!.userId);
+      if (!user) {
+        return res.status(404).json({ error: "User not found" });
+      }
+
       const lead = await storage.getLead(req.params.id);
       if (!lead) {
         return res.status(404).json({ error: "Lead not found" });
       }
+
+      if (user.role === "cp" && lead.cpId !== user.id) {
+        return res.status(403).json({ error: "Access denied" });
+      }
+      if (user.role === "developer" && lead.developerId !== user.id) {
+        return res.status(403).json({ error: "Access denied" });
+      }
+      if (user.role === "buyer") {
+        return res.status(403).json({ error: "Access denied" });
+      }
+
       res.json(lead);
     } catch (error) {
       console.error("Get lead error:", error);
@@ -295,12 +312,32 @@ export async function registerRoutes(
   // Update lead
   app.put("/api/leads/:id", requireAuth, async (req, res) => {
     try {
+      const user = await storage.getUser(req.session!.userId);
+      if (!user) {
+        return res.status(404).json({ error: "User not found" });
+      }
+
       const lead = await storage.getLead(req.params.id);
       if (!lead) {
         return res.status(404).json({ error: "Lead not found" });
       }
 
-      const updated = await storage.updateLead(req.params.id, req.body);
+      if (user.role === "cp" && lead.cpId !== user.id) {
+        return res.status(403).json({ error: "Access denied" });
+      }
+      if (user.role === "developer" && lead.developerId !== user.id) {
+        return res.status(403).json({ error: "Access denied" });
+      }
+      if (user.role === "buyer") {
+        return res.status(403).json({ error: "Access denied" });
+      }
+
+      const result = updateLeadSchema.safeParse(req.body);
+      if (!result.success) {
+        return res.status(400).json({ error: fromZodError(result.error).message });
+      }
+
+      const updated = await storage.updateLead(req.params.id, result.data);
       res.json(updated);
     } catch (error) {
       console.error("Update lead error:", error);
@@ -336,10 +373,26 @@ export async function registerRoutes(
   // Get single ad
   app.get("/api/ads/:id", requireAuth, async (req, res) => {
     try {
+      const user = await storage.getUser(req.session!.userId);
+      if (!user) {
+        return res.status(404).json({ error: "User not found" });
+      }
+
       const ad = await storage.getAd(req.params.id);
       if (!ad) {
         return res.status(404).json({ error: "Ad not found" });
       }
+
+      if (user.role === "cp" && ad.cpId !== user.id) {
+        return res.status(403).json({ error: "Access denied" });
+      }
+      if (user.role === "developer" && ad.developerId !== user.id) {
+        return res.status(403).json({ error: "Access denied" });
+      }
+      if (user.role === "buyer") {
+        return res.status(403).json({ error: "Access denied" });
+      }
+
       res.json(ad);
     } catch (error) {
       console.error("Get ad error:", error);
@@ -380,12 +433,32 @@ export async function registerRoutes(
   // Update ad
   app.put("/api/ads/:id", requireAuth, async (req, res) => {
     try {
+      const user = await storage.getUser(req.session!.userId);
+      if (!user) {
+        return res.status(404).json({ error: "User not found" });
+      }
+
       const ad = await storage.getAd(req.params.id);
       if (!ad) {
         return res.status(404).json({ error: "Ad not found" });
       }
 
-      const updated = await storage.updateAd(req.params.id, req.body);
+      if (user.role === "cp" && ad.cpId !== user.id) {
+        return res.status(403).json({ error: "Access denied" });
+      }
+      if (user.role === "developer" && ad.developerId !== user.id) {
+        return res.status(403).json({ error: "Access denied" });
+      }
+      if (user.role === "buyer") {
+        return res.status(403).json({ error: "Access denied" });
+      }
+
+      const result = updateAdSchema.safeParse(req.body);
+      if (!result.success) {
+        return res.status(400).json({ error: fromZodError(result.error).message });
+      }
+
+      const updated = await storage.updateAd(req.params.id, result.data);
       res.json(updated);
     } catch (error) {
       console.error("Update ad error:", error);
@@ -409,6 +482,10 @@ export async function registerRoutes(
       } else if (user.role === "developer") {
         const projectId = req.query.projectId as string;
         if (projectId) {
+          const project = await storage.getProject(projectId);
+          if (!project || project.developerId !== user.id) {
+            return res.status(403).json({ error: "Access denied" });
+          }
           assignments = await storage.getCpsByProject(projectId);
         } else {
           return res.status(400).json({ error: "Project ID required for developers" });
@@ -423,12 +500,32 @@ export async function registerRoutes(
     }
   });
 
-  // Assign CP to project (developer only or CP requesting)
+  // Assign CP to project (developer owns project, or CP requesting access)
   app.post("/api/cp-projects", requireAuth, async (req, res) => {
     try {
+      const user = await storage.getUser(req.session!.userId);
+      if (!user) {
+        return res.status(404).json({ error: "User not found" });
+      }
+
       const result = insertCpProjectMapSchema.safeParse(req.body);
       if (!result.success) {
         return res.status(400).json({ error: fromZodError(result.error).message });
+      }
+
+      const project = await storage.getProject(result.data.projectId);
+      if (!project) {
+        return res.status(404).json({ error: "Project not found" });
+      }
+
+      if (user.role === "developer" && project.developerId !== user.id) {
+        return res.status(403).json({ error: "Access denied" });
+      }
+      if (user.role === "cp" && result.data.cpId !== user.id) {
+        return res.status(403).json({ error: "CPs can only request access for themselves" });
+      }
+      if (user.role === "buyer") {
+        return res.status(403).json({ error: "Access denied" });
       }
 
       const assignment = await storage.assignCpToProject(result.data);
@@ -439,7 +536,7 @@ export async function registerRoutes(
     }
   });
 
-  // Update CP-project status (developer only)
+  // Update CP-project status (developer only, must own project)
   app.put("/api/cp-projects/:id/status", requireAuth, async (req, res) => {
     try {
       const user = await storage.getUser(req.session!.userId);
@@ -452,10 +549,17 @@ export async function registerRoutes(
         return res.status(400).json({ error: "Invalid status" });
       }
 
-      const updated = await storage.updateCpProjectStatus(req.params.id, status);
-      if (!updated) {
+      const assignment = await storage.getCpProjectMap(req.params.id);
+      if (!assignment) {
         return res.status(404).json({ error: "Assignment not found" });
       }
+
+      const project = await storage.getProject(assignment.projectId);
+      if (!project || project.developerId !== user.id) {
+        return res.status(403).json({ error: "Access denied" });
+      }
+
+      const updated = await storage.updateCpProjectStatus(req.params.id, status);
       res.json(updated);
     } catch (error) {
       console.error("Update CP project status error:", error);
