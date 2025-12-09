@@ -9,6 +9,7 @@ import project3 from "@assets/generated_images/commercial_office_lobby_futuristi
 import featuredBg1 from "@assets/generated_images/aerial_view_luxury_community.png";
 import featuredBg2 from "@assets/generated_images/futuristic_commercial_hub_twilight.png";
 import featuredBg3 from "@assets/generated_images/modern_eco-friendly_villa_community.png";
+import { logout } from "../lib/api";
 
 // --- Components ---
 
@@ -17,10 +18,20 @@ const Navbar = () => {
   const userRole = localStorage.getItem("userRole");
   const userName = localStorage.getItem("userName");
 
-  const handleLogout = () => {
-    localStorage.removeItem("userRole");
-    localStorage.removeItem("userName");
-    window.location.reload(); // Force refresh to update UI state
+  const handleLogout = async () => {
+    try {
+      await logout();
+      localStorage.removeItem("userRole");
+      localStorage.removeItem("userName");
+      localStorage.removeItem("userCompany");
+      localStorage.removeItem("userPhone");
+      localStorage.removeItem("userEmail");
+      localStorage.removeItem("userCity");
+      window.location.reload();
+    } catch (error) {
+      console.error("Logout failed:", error);
+      window.location.reload();
+    }
   };
 
   return (

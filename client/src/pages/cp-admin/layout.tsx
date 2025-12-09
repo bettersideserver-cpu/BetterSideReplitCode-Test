@@ -13,6 +13,7 @@ import {
   Home
 } from "lucide-react";
 import logoIcon from "@assets/generated_images/simple_abstract_logo_icon.png";
+import { logout } from "../../lib/api";
 
 import CpDashboard from "./dashboard";
 import CpLeads from "./leads";
@@ -51,14 +52,20 @@ const CpAdminLayout = ({ children }: CpAdminLayoutProps) => {
     }
   }, [setLocation]);
 
-  const handleLogout = () => {
-    localStorage.removeItem("userRole");
-    localStorage.removeItem("userName");
-    localStorage.removeItem("userCompany");
-    localStorage.removeItem("userPhone");
-    localStorage.removeItem("userEmail");
-    localStorage.removeItem("userCity");
-    setLocation("/");
+  const handleLogout = async () => {
+    try {
+      await logout();
+      localStorage.removeItem("userRole");
+      localStorage.removeItem("userName");
+      localStorage.removeItem("userCompany");
+      localStorage.removeItem("userPhone");
+      localStorage.removeItem("userEmail");
+      localStorage.removeItem("userCity");
+      setLocation("/");
+    } catch (error) {
+      console.error("Logout failed:", error);
+      setLocation("/");
+    }
   };
 
   const navigation = [
