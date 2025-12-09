@@ -29,6 +29,20 @@ const CpAdminLayout = ({ children }: CpAdminLayoutProps) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<"dashboard" | "leads" | "runAds" | "marketing" | "profile">("dashboard");
 
+  // User Details from LocalStorage
+  const userName = localStorage.getItem("userName") || "Channel Partner";
+  const userCompany = localStorage.getItem("userCompany") || "Registered Partner";
+  const userCity = localStorage.getItem("userCity") || "";
+
+  // Generate Initials
+  const getInitials = (name: string) => {
+    const parts = name.split(' ');
+    if (parts.length >= 2) return `${parts[0][0]}${parts[1][0]}`.toUpperCase();
+    return name.substring(0, 2).toUpperCase();
+  };
+  
+  const userInitials = getInitials(userName);
+
   // Access Control Check
   useEffect(() => {
     const userRole = localStorage.getItem("userRole");
@@ -39,6 +53,11 @@ const CpAdminLayout = ({ children }: CpAdminLayoutProps) => {
 
   const handleLogout = () => {
     localStorage.removeItem("userRole");
+    localStorage.removeItem("userName");
+    localStorage.removeItem("userCompany");
+    localStorage.removeItem("userPhone");
+    localStorage.removeItem("userEmail");
+    localStorage.removeItem("userCity");
     setLocation("/");
   };
 
@@ -122,11 +141,12 @@ const CpAdminLayout = ({ children }: CpAdminLayoutProps) => {
           <div className="mt-auto pt-6 border-t border-white/10">
             <div className="flex items-center gap-3 px-2 mb-4">
               <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center text-white font-bold">
-                JD
+                {userInitials}
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-bold truncate">John Doe</p>
-                <p className="text-xs text-white/40 truncate">Apex Realty</p>
+                <p className="text-sm font-bold truncate">{userName}</p>
+                <p className="text-xs text-white/40 truncate">{userCompany}</p>
+                {userCity && <p className="text-[10px] text-white/30 truncate">{userCity}</p>}
               </div>
             </div>
             <button 

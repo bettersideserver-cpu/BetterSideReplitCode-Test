@@ -44,6 +44,10 @@ const Login = () => {
 
     if (role === "Channel Partner") {
       userRole = "cp";
+      localStorage.setItem("userCompany", formData.companyName);
+      localStorage.setItem("userPhone", formData.phone);
+      localStorage.setItem("userEmail", formData.email);
+      localStorage.setItem("userCity", formData.city);
     } else if (role === "Developer") {
       userRole = "developer";
       userName = formData.contactPerson || formData.fullName; // Use contact person for dev
