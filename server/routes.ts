@@ -4,14 +4,37 @@ import { storage } from "./storage";
 import { 
   insertUserSchema, loginSchema, 
   insertProjectSchema, insertLeadSchema, insertAdSchema, insertCpProjectMapSchema,
-  updateLeadSchema, updateAdSchema
+  updateLeadSchema, updateAdSchema,
+  insertCpLeadSchema, insertAdsRequestSchema,
+  updateCpProfileSchema, insertMarketingRequestSchema
 } from "@shared/schema";
 import { fromZodError } from "zod-validation-error";
 import bcrypt from "bcryptjs";
 
 const requireAuth = (req: Request, res: Response, next: NextFunction) => {
   if (!req.session?.userId) {
-    return res.status(401).json({ error: "Not authenticated" });
+    return res.status(401).json({ error: "Not authenticated", code: "UNAUTHORIZED" });
+  }
+  next();
+};
+
+const requireCp = async (req: Request, res: Response, next: NextFunction) => {
+  if (!req.session?.userId) {
+    return res.status(401).json({ error: "Not authenticated", code: "UNAUTHORIZED" });
+  }
+  const user = await storage.getUser(req.session.userId);
+  if (!user || user.role !== "cp") {
+    return res.status(403).json({ error: "Access denied. CP role required", code: "FORBIDDEN" });
+  }
+  (req as any).cpUser = user;
+  next();
+};
+
+const requireAdmin = (req: Request, res: Response, next: NextFunction) => {
+  const adminToken = process.env.ADMIN_TOKEN;
+  const authHeader = req.headers.authorization;
+  if (!adminToken || authHeader !== `Bearer ${adminToken}`) {
+    return res.status(403).json({ error: "Admin access required", code: "FORBIDDEN" });
   }
   next();
 };
@@ -581,6 +604,468 @@ export async function registerRoutes(
     } catch (error) {
       console.error("Get CPs error:", error);
       res.status(500).json({ error: "Failed to get channel partners" });
+    }
+  });
+
+  // ============ CP PANEL ENDPOINTS ============
+
+  // CP Dashboard Stats
+  app.get("/api/cp/dashboard", requireCp, async (req, res) => {
+    try {
+      const cpUser = (req as any).cpUser;
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      const [todaysLeads, totalLeads, activeProjects, activeAds] = await Promise.all([
+        storage.countLeadsByCp(cpUser.id, today),
+        storage.countLeadsByCp(cpUser.id),
+        storage.getUniqueProjectsCountForCp(cpUser.id),
+        storage.getActiveAdsCountByCp(cpUser.id),
+      ]);
+
+      res.json({
+        todaysLeads,
+        totalLeads,
+        activeProjects,
+        activeAds,
+      });
+    } catch (error) {
+      console.error("CP Dashboard error:", error);
+      res.status(500).json({ error: "Failed to load dashboard", code: "SERVER_ERROR" });
+    }
+  });
+
+  // CP Leads - List with pagination
+  app.get("/api/cp/leads", requireCp, async (req, res) => {
+    try {
+      const cpUser = (req as any).cpUser;
+      const { page, limit, project_id, status, date } = req.query;
+      
+      let dateFrom: Date | undefined;
+      if (date === "today") {
+        dateFrom = new Date();
+        dateFrom.setHours(0, 0, 0, 0);
+      }
+
+      const result = await storage.getLeadsByCpPaginated(cpUser.id, {
+        page: page ? parseInt(page as string) : 1,
+        limit: limit ? parseInt(limit as string) : 20,
+        projectId: project_id as string,
+        status: status as string,
+        dateFrom,
+      });
+
+      res.json({
+        data: result.data,
+        meta: {
+          page: page ? parseInt(page as string) : 1,
+          limit: limit ? parseInt(limit as string) : 20,
+          total: result.total,
+        },
+      });
+    } catch (error) {
+      console.error("CP Leads list error:", error);
+      res.status(500).json({ error: "Failed to load leads", code: "SERVER_ERROR" });
+    }
+  });
+
+  // CP Leads - Get single lead
+  app.get("/api/cp/leads/:id", requireCp, async (req, res) => {
+    try {
+      const cpUser = (req as any).cpUser;
+      const lead = await storage.getLead(req.params.id);
+      
+      if (!lead) {
+        return res.status(404).json({ error: "Lead not found", code: "NOT_FOUND" });
+      }
+      if (lead.cpId !== cpUser.id) {
+        return res.status(403).json({ error: "Access denied", code: "FORBIDDEN" });
+      }
+
+      res.json(lead);
+    } catch (error) {
+      console.error("CP Get lead error:", error);
+      res.status(500).json({ error: "Failed to get lead", code: "SERVER_ERROR" });
+    }
+  });
+
+  // CP Leads - Create lead with 10-digit phone validation
+  app.post("/api/cp/leads", requireCp, async (req, res) => {
+    try {
+      const cpUser = (req as any).cpUser;
+      const result = insertCpLeadSchema.safeParse(req.body);
+      
+      if (!result.success) {
+        return res.status(400).json({ 
+          error: fromZodError(result.error).message,
+          code: "VALIDATION_ERROR" 
+        });
+      }
+
+      const lead = await storage.createLead({
+        cpId: cpUser.id,
+        projectId: result.data.projectId,
+        developerId: result.data.developerId,
+        customerName: result.data.customerName,
+        customerPhone: result.data.customerPhone,
+        customerEmail: result.data.customerEmail || null,
+        customerCity: result.data.customerCity,
+        budget: result.data.budget,
+        source: result.data.source,
+        status: result.data.status || "new",
+        notes: result.data.notes,
+      });
+
+      res.status(201).json(lead);
+    } catch (error) {
+      console.error("CP Create lead error:", error);
+      res.status(500).json({ error: "Failed to create lead", code: "SERVER_ERROR" });
+    }
+  });
+
+  // CP Leads - Update lead
+  app.put("/api/cp/leads/:id", requireCp, async (req, res) => {
+    try {
+      const cpUser = (req as any).cpUser;
+      const lead = await storage.getLead(req.params.id);
+      
+      if (!lead) {
+        return res.status(404).json({ error: "Lead not found", code: "NOT_FOUND" });
+      }
+      if (lead.cpId !== cpUser.id) {
+        return res.status(403).json({ error: "Access denied", code: "FORBIDDEN" });
+      }
+
+      const result = updateLeadSchema.safeParse(req.body);
+      if (!result.success) {
+        return res.status(400).json({ 
+          error: fromZodError(result.error).message,
+          code: "VALIDATION_ERROR" 
+        });
+      }
+
+      const updated = await storage.updateLead(req.params.id, result.data);
+      res.json(updated);
+    } catch (error) {
+      console.error("CP Update lead error:", error);
+      res.status(500).json({ error: "Failed to update lead", code: "SERVER_ERROR" });
+    }
+  });
+
+  // CP Leads - Delete lead
+  app.delete("/api/cp/leads/:id", requireCp, async (req, res) => {
+    try {
+      const cpUser = (req as any).cpUser;
+      const lead = await storage.getLead(req.params.id);
+      
+      if (!lead) {
+        return res.status(404).json({ error: "Lead not found", code: "NOT_FOUND" });
+      }
+      if (lead.cpId !== cpUser.id) {
+        return res.status(403).json({ error: "Access denied", code: "FORBIDDEN" });
+      }
+
+      // Soft delete by updating status
+      await storage.updateLead(req.params.id, { status: "lost" });
+      res.status(204).send();
+    } catch (error) {
+      console.error("CP Delete lead error:", error);
+      res.status(500).json({ error: "Failed to delete lead", code: "SERVER_ERROR" });
+    }
+  });
+
+  // CP Ads Requests - List
+  app.get("/api/cp/ads-requests", requireCp, async (req, res) => {
+    try {
+      const cpUser = (req as any).cpUser;
+      const ads = await storage.getAdsByCp(cpUser.id);
+      
+      res.json({
+        data: ads,
+        meta: { total: ads.length },
+      });
+    } catch (error) {
+      console.error("CP Ads list error:", error);
+      res.status(500).json({ error: "Failed to load ad requests", code: "SERVER_ERROR" });
+    }
+  });
+
+  // CP Ads Requests - Get single
+  app.get("/api/cp/ads-requests/:id", requireCp, async (req, res) => {
+    try {
+      const cpUser = (req as any).cpUser;
+      const ad = await storage.getAd(req.params.id);
+      
+      if (!ad) {
+        return res.status(404).json({ error: "Ad request not found", code: "NOT_FOUND" });
+      }
+      if (ad.cpId !== cpUser.id) {
+        return res.status(403).json({ error: "Access denied", code: "FORBIDDEN" });
+      }
+
+      res.json(ad);
+    } catch (error) {
+      console.error("CP Get ad error:", error);
+      res.status(500).json({ error: "Failed to get ad request", code: "SERVER_ERROR" });
+    }
+  });
+
+  // CP Ads Requests - Create (Run Ads)
+  app.post("/api/cp/ads-requests", requireCp, async (req, res) => {
+    try {
+      const cpUser = (req as any).cpUser;
+      const result = insertAdsRequestSchema.safeParse(req.body);
+      
+      if (!result.success) {
+        return res.status(400).json({ 
+          error: fromZodError(result.error).message,
+          code: "VALIDATION_ERROR" 
+        });
+      }
+
+      // Verify project exists
+      const project = await storage.getProject(result.data.projectId);
+      if (!project) {
+        return res.status(404).json({ error: "Project not found", code: "NOT_FOUND" });
+      }
+
+      const ad = await storage.createAd({
+        cpId: cpUser.id,
+        projectId: result.data.projectId,
+        title: `${result.data.objective} Campaign`,
+        description: result.data.notes || "",
+        budget: result.data.budgetInr,
+        status: "pending",
+        platform: "all",
+        startDate: new Date(),
+        endDate: new Date(Date.now() + result.data.durationDays * 24 * 60 * 60 * 1000),
+      });
+
+      res.status(201).json(ad);
+    } catch (error) {
+      console.error("CP Create ad error:", error);
+      res.status(500).json({ error: "Failed to create ad request", code: "SERVER_ERROR" });
+    }
+  });
+
+  // CP Ads Requests - Update (cancel or update notes)
+  app.put("/api/cp/ads-requests/:id", requireCp, async (req, res) => {
+    try {
+      const cpUser = (req as any).cpUser;
+      const ad = await storage.getAd(req.params.id);
+      
+      if (!ad) {
+        return res.status(404).json({ error: "Ad request not found", code: "NOT_FOUND" });
+      }
+      if (ad.cpId !== cpUser.id) {
+        return res.status(403).json({ error: "Access denied", code: "FORBIDDEN" });
+      }
+
+      const { status, description } = req.body;
+      const updates: any = {};
+      
+      if (status === "cancelled") {
+        updates.status = "cancelled";
+      }
+      if (description !== undefined) {
+        updates.description = description;
+      }
+
+      const updated = await storage.updateAd(req.params.id, updates);
+      res.json(updated);
+    } catch (error) {
+      console.error("CP Update ad error:", error);
+      res.status(500).json({ error: "Failed to update ad request", code: "SERVER_ERROR" });
+    }
+  });
+
+  // CP Marketing Counters
+  app.get("/api/cp/marketing", requireCp, async (req, res) => {
+    try {
+      const cpUser = (req as any).cpUser;
+      const counters = await storage.getMarketingCountersByCp(cpUser.id);
+      
+      let totalCreatives = 0;
+      let totalEdms = 0;
+      const perProject: any[] = [];
+
+      for (const counter of counters) {
+        totalCreatives += counter.creativesShared || 0;
+        totalEdms += counter.edmsShared || 0;
+        
+        if (counter.projectId) {
+          const project = await storage.getProject(counter.projectId);
+          perProject.push({
+            projectId: counter.projectId,
+            projectTitle: project?.name || "Unknown",
+            creativesShared: counter.creativesShared || 0,
+            edmsShared: counter.edmsShared || 0,
+          });
+        }
+      }
+
+      res.json({
+        creatives_shared: totalCreatives,
+        edms_shared: totalEdms,
+        per_project: perProject,
+      });
+    } catch (error) {
+      console.error("CP Marketing counters error:", error);
+      res.status(500).json({ error: "Failed to load marketing counters", code: "SERVER_ERROR" });
+    }
+  });
+
+  // Admin endpoint to increment marketing counters
+  app.post("/api/cp/marketing/increment", requireAdmin, async (req, res) => {
+    try {
+      const { cp_id, project_id, creatives, edms } = req.body;
+      
+      if (!cp_id) {
+        return res.status(400).json({ error: "cp_id required", code: "VALIDATION_ERROR" });
+      }
+
+      const counter = await storage.incrementMarketingCounter(
+        cp_id,
+        project_id || null,
+        creatives || 0,
+        edms || 0
+      );
+
+      res.json(counter);
+    } catch (error) {
+      console.error("Increment marketing counters error:", error);
+      res.status(500).json({ error: "Failed to increment counters", code: "SERVER_ERROR" });
+    }
+  });
+
+  // CP Marketing Request (request creative/edm)
+  app.post("/api/cp/marketing/request", requireCp, async (req, res) => {
+    try {
+      const cpUser = (req as any).cpUser;
+      const { project_id, type, notes } = req.body;
+
+      if (!type || !["creative", "edm"].includes(type)) {
+        return res.status(400).json({ 
+          error: "Invalid request type. Must be 'creative' or 'edm'",
+          code: "VALIDATION_ERROR" 
+        });
+      }
+
+      const request = await storage.createMarketingRequest({
+        cpId: cpUser.id,
+        projectId: project_id,
+        requestType: type,
+        notes: notes || "",
+        status: "pending",
+      });
+
+      res.status(201).json(request);
+    } catch (error) {
+      console.error("CP Marketing request error:", error);
+      res.status(500).json({ error: "Failed to create marketing request", code: "SERVER_ERROR" });
+    }
+  });
+
+  // CP Marketing Requests List
+  app.get("/api/cp/marketing/requests", requireCp, async (req, res) => {
+    try {
+      const cpUser = (req as any).cpUser;
+      const requests = await storage.getMarketingRequestsByCp(cpUser.id);
+      res.json({ data: requests, meta: { total: requests.length } });
+    } catch (error) {
+      console.error("CP Marketing requests list error:", error);
+      res.status(500).json({ error: "Failed to load marketing requests", code: "SERVER_ERROR" });
+    }
+  });
+
+  // CP Profile - Get
+  app.get("/api/cp/profile", requireCp, async (req, res) => {
+    try {
+      const cpUser = (req as any).cpUser;
+      const profile = await storage.getCpProfile(cpUser.id);
+      
+      if (!profile) {
+        // Return user data as fallback if no separate profile exists
+        const { password, ...userWithoutPassword } = cpUser;
+        return res.json({
+          userId: cpUser.id,
+          fullName: cpUser.fullName || "",
+          companyName: cpUser.companyName || "",
+          phone: cpUser.phone || "",
+          city: cpUser.city || "",
+          email: cpUser.email,
+        });
+      }
+
+      res.json({
+        ...profile,
+        email: cpUser.email,
+      });
+    } catch (error) {
+      console.error("CP Profile get error:", error);
+      res.status(500).json({ error: "Failed to load profile", code: "SERVER_ERROR" });
+    }
+  });
+
+  // CP Profile - Update
+  app.put("/api/cp/profile", requireCp, async (req, res) => {
+    try {
+      const cpUser = (req as any).cpUser;
+      const result = updateCpProfileSchema.safeParse(req.body);
+      
+      if (!result.success) {
+        return res.status(400).json({ 
+          error: fromZodError(result.error).message,
+          code: "VALIDATION_ERROR" 
+        });
+      }
+
+      // Check if profile exists
+      const existingProfile = await storage.getCpProfile(cpUser.id);
+      
+      if (existingProfile) {
+        const updated = await storage.updateCpProfile(cpUser.id, result.data);
+        return res.json(updated);
+      }
+
+      // Create new profile if doesn't exist
+      const newProfile = await storage.createCpProfile({
+        userId: cpUser.id,
+        fullName: result.data.fullName || cpUser.fullName || "",
+        companyName: result.data.companyName || cpUser.companyName || "",
+        phone: result.data.phone || cpUser.phone || "",
+        city: result.data.city || cpUser.city || "",
+        extraJson: result.data.extraJson,
+      });
+
+      res.json(newProfile);
+    } catch (error) {
+      console.error("CP Profile update error:", error);
+      res.status(500).json({ error: "Failed to update profile", code: "SERVER_ERROR" });
+    }
+  });
+
+  // CP Projects - Get assigned projects
+  app.get("/api/cp/projects", requireCp, async (req, res) => {
+    try {
+      const cpUser = (req as any).cpUser;
+      const assignments = await storage.getProjectsByCp(cpUser.id);
+      
+      // Enrich with project details
+      const projectsWithDetails = await Promise.all(
+        assignments.map(async (assignment) => {
+          const project = await storage.getProject(assignment.projectId);
+          return {
+            ...assignment,
+            project: project || null,
+          };
+        })
+      );
+
+      res.json(projectsWithDetails);
+    } catch (error) {
+      console.error("CP Projects error:", error);
+      res.status(500).json({ error: "Failed to load projects", code: "SERVER_ERROR" });
     }
   });
 
