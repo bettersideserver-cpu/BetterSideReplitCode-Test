@@ -10,6 +10,7 @@ import featuredBg1 from "@assets/generated_images/aerial_view_luxury_community.p
 import featuredBg2 from "@assets/generated_images/futuristic_commercial_hub_twilight.png";
 import featuredBg3 from "@assets/generated_images/modern_eco-friendly_villa_community.png";
 import { logout } from "../lib/api";
+import { InteractiveHero } from "../components/InteractiveHero";
 
 // --- Components ---
 
@@ -306,7 +307,7 @@ const DiscoverProjectsSection = () => {
   ];
 
   return (
-    <section className="py-24 bg-[#050816] relative overflow-hidden">
+    <section id="discover-section" className="py-24 bg-[#050816] relative overflow-hidden">
       <div className="px-6 md:px-12 max-w-[1920px] mx-auto mb-12">
         <h2 className="text-3xl md:text-5xl font-display font-bold text-white mb-3">
           DISCOVER OUR PROJECT WORLDS
@@ -605,10 +606,22 @@ const Footer = () => {
 };
 
 const HomePage = () => {
+  const handleExploreClick = () => {
+    document.getElementById('discover-section')?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  const handleContactClick = () => {
+    document.getElementById('contact-section')?.scrollIntoView({ behavior: 'smooth' });
+  };
+
   return (
     <div className="min-h-screen bg-[#050816] text-white selection:bg-accent selection:text-white">
       <Navbar />
-      <HeroSection />
+      <InteractiveHero 
+        heroBg={heroBg}
+        onExploreClick={handleExploreClick}
+        onContactClick={handleContactClick}
+      />
       <DiscoverProjectsSection />
       <FeaturedProjectsList />
       <BlogSection />
