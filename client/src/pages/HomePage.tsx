@@ -12,6 +12,8 @@ import featuredBg3 from "@assets/generated_images/modern_eco-friendly_villa_comm
 import { logout } from "../lib/api";
 import { InteractiveHero } from "../components/InteractiveHero";
 
+import Betterside_Logo from "@assets/Betterside Logo.png";
+
 // --- Components ---
 
 const Navbar = () => {
@@ -40,13 +42,12 @@ const Navbar = () => {
       {/* Logo */}
       <Link href="/">
         <div className="flex items-center gap-3 cursor-pointer">
-          <img src={logoIcon} alt="BetterSide Logo" className="w-10 h-10 object-contain" />
+          <img src={Betterside_Logo} alt="BetterSide Logo" className="w-10 h-10 object-contain" />
           <span className="text-2xl font-display font-bold tracking-tight text-white hidden sm:block">
             BetterSide
           </span>
         </div>
       </Link>
-
       {/* Desktop Nav */}
       <div className="hidden md:flex items-center gap-8">
         <Link href="/">
@@ -109,7 +110,6 @@ const Navbar = () => {
           </Link>
         )}
       </div>
-
       {/* Mobile Menu Toggle */}
       <button 
         className="md:hidden text-white p-2"
@@ -117,7 +117,6 @@ const Navbar = () => {
       >
         {isOpen ? <X size={24} /> : <Menu size={24} />}
       </button>
-
       {/* Mobile Nav Overlay */}
       {isOpen && (
         <div className="absolute top-full left-0 right-0 bg-[#050816] border-b border-white/10 p-6 flex flex-col gap-4 md:hidden animate-in slide-in-from-top-2">
