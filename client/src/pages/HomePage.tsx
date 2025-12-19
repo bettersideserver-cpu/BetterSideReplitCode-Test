@@ -43,9 +43,6 @@ const Navbar = () => {
       <Link href="/">
         <div className="flex items-center gap-3 cursor-pointer">
           <img src={Betterside_Logo} alt="BetterSide Logo" className="w-10 h-10 object-contain" />
-          <span className="text-2xl font-display font-bold tracking-tight text-white hidden sm:block">
-            BetterSide
-          </span>
         </div>
       </Link>
       {/* Desktop Nav */}
