@@ -6,7 +6,7 @@ import logoIcon from "@assets/generated_images/simple_abstract_logo_icon.png";
 import project1 from "@assets/generated_images/luxury_apartment_interior_evening.png";
 import project2 from "@assets/generated_images/modern_villa_exterior_night.png";
 import project3 from "@assets/generated_images/commercial_office_lobby_futuristic.png";
-import featuredBg1 from "@assets/generated_images/aerial_view_luxury_community.png";
+import featuredBg1 from "@assets/CM_Infinia_1766146715845.jpg";
 import featuredBg2 from "@assets/generated_images/futuristic_commercial_hub_twilight.png";
 import featuredBg3 from "@assets/generated_images/modern_eco-friendly_villa_community.png";
 import { logout } from "../lib/api";
