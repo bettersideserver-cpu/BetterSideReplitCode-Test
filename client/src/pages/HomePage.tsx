@@ -384,8 +384,8 @@ const FeaturedProjectsList = () => {
       />
       <FeaturedProjectSection 
         image={featuredBg2}
-        title="Cyber City Hub"
-        desc="Experience the future of work. A next-gen commercial district with smart offices and retail spaces."
+        title="MDB The Lutyens"
+        desc="Experience luxury redefined. An exclusive residential enclave with world-class amenities and timeless architecture."
       />
       <FeaturedProjectSection 
         image={featuredBg3}
