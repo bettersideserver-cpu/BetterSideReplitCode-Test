@@ -393,6 +393,7 @@ const FeaturedProjectsList = () => {
         image={featuredBg2}
         title="MDB The Lutyens"
         desc="Experience luxury redefined. An exclusive residential enclave with world-class amenities and timeless architecture."
+        link="https://mdbthelutyens.in/"
       />
       <FeaturedProjectSection 
         image={featuredBg3}
