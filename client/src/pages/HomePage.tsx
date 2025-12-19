@@ -8,7 +8,7 @@ import project2 from "@assets/generated_images/modern_villa_exterior_night.png";
 import project3 from "@assets/generated_images/commercial_office_lobby_futuristic.png";
 import featuredBg1 from "@assets/CM_Infinia_1766146715845.jpg";
 import featuredBg2 from "@assets/MDB_Lutyens_1766146795158.jpg";
-import featuredBg3 from "@assets/generated_images/modern_eco-friendly_villa_community.png";
+import featuredBg3 from "@assets/AnantaStreet_1766146992482.jpg";
 import { logout } from "../lib/api";
 import { InteractiveHero } from "../components/InteractiveHero";
 
