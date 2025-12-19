@@ -333,10 +333,11 @@ interface FeaturedProjectProps {
   image: string;
   title: string;
   desc: string;
+  link?: string;
   reversed?: boolean;
 }
 
-const FeaturedProjectSection = ({ image, title, desc, reversed = false }: FeaturedProjectProps) => {
+const FeaturedProjectSection = ({ image, title, desc, link, reversed = false }: FeaturedProjectProps) => {
   return (
     <section className="py-16 md:py-24 bg-[#050816] px-6 md:px-12 border-t border-white/5 last:border-b-0">
       <div className="max-w-7xl mx-auto">
@@ -357,9 +358,14 @@ const FeaturedProjectSection = ({ image, title, desc, reversed = false }: Featur
             <p className="text-white/80 text-lg md:text-xl mb-8 max-w-2xl leading-relaxed">{desc}</p>
             
             <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
-              <button className="px-8 py-4 rounded-full bg-primary text-white font-bold text-lg hover:bg-primary/90 hover:scale-105 transition-all duration-300 shadow-lg min-w-[200px]">
+              <a 
+                href={link || "#"} 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="px-8 py-4 rounded-full bg-primary text-white font-bold text-lg hover:bg-primary/90 hover:scale-105 transition-all duration-300 shadow-lg min-w-[200px] text-center"
+              >
                 View Full IPX Experience
-              </button>
+              </a>
             </div>
           </div>
         </div>
@@ -381,6 +387,7 @@ const FeaturedProjectsList = () => {
         image={featuredBg1}
         title="CM Infinia"
         desc="Full immersive tour of CM Infinia, a premium luxury residential tower in the heart of the city."
+        link="https://www.cminfiniaimmersive.com/"
       />
       <FeaturedProjectSection 
         image={featuredBg2}
