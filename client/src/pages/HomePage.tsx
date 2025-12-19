@@ -382,8 +382,8 @@ const FeaturedProjectsList = () => {
     <>
       <FeaturedProjectSection 
         image={featuredBg1}
-        title="Lakeside Residences"
-        desc="Full immersive tour of Lakeside Residences, a premium waterfront community pre-launch in Mohali."
+        title="CM Infinia"
+        desc="Full immersive tour of CM Infinia, a premium luxury residential tower in the heart of the city."
       />
       <FeaturedProjectSection 
         image={featuredBg2}
