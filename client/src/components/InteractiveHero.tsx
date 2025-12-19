@@ -285,7 +285,6 @@ export const InteractiveHero: React.FC<InteractiveHeroProps> = ({
           aria-hidden="true"
         />
       )}
-
       {/* Background Layer - Parallax on scroll + mouse */}
       <div
         ref={bgLayerRef}
@@ -308,7 +307,6 @@ export const InteractiveHero: React.FC<InteractiveHeroProps> = ({
           aria-hidden="true"
         />
       </div>
-
       {/* Mid Layer - Decorative shapes with stronger parallax */}
       <div
         ref={midLayerRef}
@@ -322,7 +320,6 @@ export const InteractiveHero: React.FC<InteractiveHeroProps> = ({
         <div className="absolute top-1/4 right-1/4 w-64 h-64 rounded-full bg-[#0057FF]/10 blur-3xl" />
         <div className="absolute bottom-1/3 left-1/5 w-48 h-48 rounded-full bg-[#FF6A00]/10 blur-3xl" />
       </div>
-
       {/* Foreground Layer - Content with subtle parallax */}
       <div
         ref={fgLayerRef}
@@ -333,13 +330,7 @@ export const InteractiveHero: React.FC<InteractiveHeroProps> = ({
       >
         {/* Tagline - Stagger 0 */}
         <span
-          className={`inline-block mb-4 text-[#FF6A00] font-bold tracking-widest text-xs uppercase transition-all duration-700 ${
-            isLoaded && shouldAnimate
-              ? "opacity-100 translate-y-0"
-              : shouldAnimate
-              ? "opacity-0 translate-y-4"
-              : ""
-          }`}
+          className="inline-block mb-4 font-bold tracking-widest text-xs uppercase transition-all duration-700 opacity-100 translate-y-0 text-[#efeff0]"
           style={{ transitionDelay: shouldAnimate ? "0ms" : undefined }}
           data-testid="text-tagline"
         >
@@ -414,14 +405,12 @@ export const InteractiveHero: React.FC<InteractiveHeroProps> = ({
           </RippleButton>
         </div>
       </div>
-
       {/* Slider Indicators */}
       <div className="absolute bottom-12 left-6 md:left-12 flex gap-3 z-30" aria-hidden="true">
         <div className="w-12 h-1 bg-white rounded-full" />
         <div className="w-2 h-1 bg-white/30 rounded-full" />
         <div className="w-2 h-1 bg-white/30 rounded-full" />
       </div>
-
       {/* Ripple animation keyframes */}
       <style>{`
         @keyframes ripple {
