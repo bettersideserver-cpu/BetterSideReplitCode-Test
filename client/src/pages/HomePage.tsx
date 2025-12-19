@@ -360,9 +360,6 @@ const FeaturedProjectSection = ({ image, title, desc, reversed = false }: Featur
               <button className="px-8 py-4 rounded-full bg-primary text-white font-bold text-lg hover:bg-primary/90 hover:scale-105 transition-all duration-300 shadow-lg min-w-[200px]">
                 View Full IPX Experience
               </button>
-              <button className="px-8 py-4 rounded-full border border-white/20 text-white font-bold text-lg hover:bg-white/10 hover:border-white transition-all duration-300 min-w-[200px]">
-                Connect with a Partner
-              </button>
             </div>
           </div>
         </div>
