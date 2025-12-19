@@ -14,6 +14,8 @@ import { InteractiveHero } from "../components/InteractiveHero";
 
 import Betterside_Logo from "@assets/Betterside Logo.png";
 
+import Betterside_Logo___2 from "@assets/Betterside Logo - 2.png";
+
 // --- Components ---
 
 const Navbar = () => {
@@ -42,7 +44,7 @@ const Navbar = () => {
       {/* Logo */}
       <Link href="/">
         <div className="flex items-center gap-3 cursor-pointer">
-          <img src={Betterside_Logo} alt="BetterSide Logo" className="w-32 h-auto object-contain" />
+          <img src={Betterside_Logo___2} alt="BetterSide Logo" className="w-32 h-auto object-contain" />
         </div>
       </Link>
       {/* Desktop Nav */}
