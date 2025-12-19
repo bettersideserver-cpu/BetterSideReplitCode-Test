@@ -492,7 +492,7 @@ const ContactSection = () => {
                 <div>
                   <h3 className="text-white font-bold text-lg mb-1">Visit Us</h3>
                   <p className="text-white/70 text-lg">
-                    BetterSide Studio, Zirakpur,<br />Punjab, India
+                    404, Nirmal Nagar Rd, Duggri,<br />Ludhiana, Punjab 141001
                   </p>
                 </div>
               </div>
@@ -503,7 +503,7 @@ const ContactSection = () => {
           <div className="relative w-full aspect-square md:aspect-video lg:aspect-square rounded-3xl overflow-hidden border border-white/10 shadow-2xl shadow-primary/5 group">
              {/* Simple Map Placeholder / Embed */}
              <iframe 
-               src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d54907.62343906236!2d76.822835!3d30.642549!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x390f93630f7d636d%3A0x6b4f746194481d1e!2sZirakpur%2C%20Punjab!5e0!3m2!1sen!2sin!4v1716382958611!5m2!1sen!2sin" 
+               src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3424.123456789!2d75.8572!3d30.8773!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x391a8376c2f0b2f9%3A0x1234567890abcdef!2sNirmal%20Nagar%20Rd%2C%20Duggri%2C%20Ludhiana%2C%20Punjab%20141001!5e0!3m2!1sen!2sin!4v1716382958611!5m2!1sen!2sin" 
                width="100%" 
                height="100%" 
                style={{ border: 0, filter: 'grayscale(100%) invert(92%) contrast(83%)' }} 
