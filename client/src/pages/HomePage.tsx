@@ -389,8 +389,8 @@ const FeaturedProjectsList = () => {
       />
       <FeaturedProjectSection 
         image={featuredBg3}
-        title="EcoValley Villas"
-        desc="Sustainable luxury living in the heart of nature. Solar-powered villas with private infinity pools."
+        title="Ananta Street"
+        desc="A vibrant commercial destination with premium retail spaces, dining, and entertainment in a stunning architectural setting."
       />
     </>
   );
