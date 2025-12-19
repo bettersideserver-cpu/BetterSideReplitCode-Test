@@ -358,9 +358,13 @@ export const InteractiveHero: React.FC<InteractiveHeroProps> = ({
           style={{ transitionDelay: shouldAnimate ? `${CONTENT_STAGGER_DELAY}ms` : undefined }}
           data-testid="text-headline"
         >
-          Experience Real Estate <br />
+          <span className="text-[#FF6F00]">E</span>xperience{" "}
+          <span className="text-[#FF6F00]">R</span>eal{" "}
+          <span className="text-[#FF6F00]">E</span>state <br />
           <span className="text-transparent bg-clip-text bg-gradient-to-r from-white to-white/60">
-            Before It's Built.
+            <span className="text-[#FF6F00]">B</span>efore{" "}
+            <span className="text-[#FF6F00]">I</span>t's{" "}
+            <span className="text-[#FF6F00]">B</span>uilt.
           </span>
         </h1>
 
