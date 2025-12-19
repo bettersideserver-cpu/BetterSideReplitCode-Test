@@ -399,6 +399,7 @@ const FeaturedProjectsList = () => {
         image={featuredBg3}
         title="Ananta Street"
         desc="A vibrant commercial destination with premium retail spaces, dining, and entertainment in a stunning architectural setting."
+        link="https://bettersideserver-cpu.github.io/AnantaStreet/"
       />
     </>
   );
