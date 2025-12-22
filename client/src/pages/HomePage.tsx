@@ -239,7 +239,6 @@ interface ProjectCardProps {
 
 const ProjectCard = ({ image, title, desc, badge, badgeColor = "blue" }: ProjectCardProps) => (
   <div className="group relative min-w-[300px] md:min-w-[400px] h-[500px] rounded-2xl overflow-hidden cursor-pointer transition-transform duration-500 hover:-translate-y-2">
-    <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent z-10" />
     <img
       src={image}
       alt={title}
