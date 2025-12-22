@@ -1,9 +1,11 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import { Link } from "wouter";
 import { Play, ChevronRight, Menu, X, User, Facebook, Instagram, Twitter, Linkedin, Mail, MapPin, Phone } from "lucide-react";
 import heroBg from "@assets/generated_images/futuristic_luxury_skyscraper_at_twilight.png";
 import logoIcon from "@assets/generated_images/simple_abstract_logo_icon.png";
-
+import project1 from "@assets/generated_images/luxury_apartment_interior_evening.png";
+import project2 from "@assets/generated_images/modern_villa_exterior_night.png";
+import project3 from "@assets/generated_images/commercial_office_lobby_futuristic.png";
 import featuredBg1 from "@assets/CM_Infinia_1766146715845.jpg";
 import featuredBg2 from "@assets/MDB_Lutyens_1766146795158.jpg";
 import featuredBg3 from "@assets/AnantaStreet_1766146992482.jpg";
@@ -222,6 +224,99 @@ const HeroSection = () => {
         <div className="w-12 h-1 bg-white rounded-full" />
         <div className="w-2 h-1 bg-white/30 rounded-full" />
         <div className="w-2 h-1 bg-white/30 rounded-full" />
+      </div>
+    </section>
+  );
+};
+
+interface ProjectCardProps {
+  image: string;
+  title: string;
+  desc: string;
+  badge: string;
+  badgeColor?: "blue" | "orange";
+}
+
+const ProjectCard = ({ image, title, desc, badge, badgeColor = "blue" }: ProjectCardProps) => (
+  <div className="group relative min-w-[300px] md:min-w-[400px] h-[500px] rounded-2xl overflow-hidden cursor-pointer transition-transform duration-500 hover:-translate-y-2">
+    {/* Badge */}
+    <div className={`absolute top-4 left-4 z-20 px-3 py-1 rounded-md text-xs font-bold uppercase tracking-wider text-white ${badgeColor === 'orange' ? 'bg-accent' : 'bg-primary'}`}>
+      {badge}
+    </div>
+
+    {/* Content */}
+    <div className="absolute bottom-0 left-0 right-0 p-6 z-20 transform transition-transform duration-300 group-hover:translate-y-[-8px]">
+      <h3 className="text-2xl font-display font-bold text-white mb-2">{title}</h3>
+      <p className="text-white/70 text-sm font-medium mb-4">{desc}</p>
+      
+      <div className="flex items-center gap-2 text-primary font-bold text-sm opacity-0 group-hover:opacity-100 transition-opacity duration-300 translate-y-4 group-hover:translate-y-0">
+        View Project <ChevronRight size={16} />
+      </div>
+    </div>
+  </div>
+);
+
+const DiscoverProjectsSection = () => {
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  const projects = [
+    {
+      image: project1,
+      title: "Skyline Heights, Zirakpur",
+      desc: "Luxury 3 & 4 BHK • Trusted Developer",
+      badge: "Best Seller",
+      badgeColor: "blue" as const
+    },
+    {
+      image: project2,
+      title: "The Grand Villa, Goa",
+      desc: "Sea-facing 5 BHK Villas • Pre-Launch",
+      badge: "New Launch",
+      badgeColor: "orange" as const
+    },
+    {
+      image: project3,
+      title: "Tech Park One, Bangalore",
+      desc: "Premium Commercial Spaces • Ready to Move",
+      badge: "Featured",
+      badgeColor: "blue" as const
+    },
+    {
+      image: project1, // reusing for demo
+      title: "Lakeside Residences",
+      desc: "Waterfront Living • 2 & 3 BHK",
+      badge: "Pre-Launch",
+      badgeColor: "orange" as const
+    },
+    {
+      image: project2, // reusing for demo
+      title: "Urban Towers",
+      desc: "Modern City Living • Smart Homes",
+      badge: "Popular",
+      badgeColor: "blue" as const
+    }
+  ];
+
+  return (
+    <section id="discover-section" className="py-24 bg-[#050816] relative overflow-hidden">
+      <div className="px-6 md:px-12 max-w-[1920px] mx-auto mb-12">
+        <h2 className="text-3xl md:text-5xl font-display font-bold text-white mb-3">
+          DISCOVER OUR PROJECT WORLDS
+        </h2>
+        <p className="text-white/60 text-lg">Handpicked IPX experiences from trusted developers.</p>
+      </div>
+
+      {/* Horizontal Scroll Container */}
+      <div 
+        className="flex gap-6 overflow-x-auto px-6 md:px-12 pb-12 snap-x snap-mandatory hide-scrollbar"
+        ref={scrollRef}
+        style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+      >
+        {projects.map((project, idx) => (
+          <div key={idx} className="snap-start">
+            <ProjectCard {...project} />
+          </div>
+        ))}
       </div>
     </section>
   );
@@ -524,6 +619,7 @@ const HomePage = () => {
         onExploreClick={handleExploreClick}
         onContactClick={handleContactClick}
       />
+      <DiscoverProjectsSection />
       <FeaturedProjectsList />
       <BlogSection />
       <ContactSection />
