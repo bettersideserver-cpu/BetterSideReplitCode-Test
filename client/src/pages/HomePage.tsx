@@ -239,6 +239,12 @@ interface ProjectCardProps {
 
 const ProjectCard = ({ image, title, desc, badge, badgeColor = "blue" }: ProjectCardProps) => (
   <div className="group relative min-w-[300px] md:min-w-[400px] h-[500px] rounded-2xl overflow-hidden cursor-pointer transition-transform duration-500 hover:-translate-y-2">
+    <img
+      src={image}
+      alt={title}
+      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+    />
+    
     {/* Badge */}
     <div className={`absolute top-4 left-4 z-20 px-3 py-1 rounded-md text-xs font-bold uppercase tracking-wider text-white ${badgeColor === 'orange' ? 'bg-accent' : 'bg-primary'}`}>
       {badge}
