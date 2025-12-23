@@ -474,9 +474,20 @@ const ContactSection = () => {
                 </div>
                 <div>
                   <h3 className="text-white font-bold text-lg mb-1">Call Us</h3>
-                  <a href="tel:+917986519697" className="text-white/70 hover:text-white transition-colors text-lg">
-                    +91 79865 19697
-                  </a>
+                  <div className="space-y-2">
+                    <div>
+                      <span className="text-white/50 text-sm">Manik Aggarwal</span>
+                      <a href="tel:+917986519697" className="text-white/70 hover:text-white transition-colors text-lg block">
+                        +91 79865 19697
+                      </a>
+                    </div>
+                    <div>
+                      <span className="text-white/50 text-sm">Damanjot Singh</span>
+                      <a href="tel:+917009255992" className="text-white/70 hover:text-white transition-colors text-lg block">
+                        +91 70092 55992
+                      </a>
+                    </div>
+                  </div>
                 </div>
               </div>
 
