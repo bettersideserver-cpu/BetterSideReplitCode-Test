@@ -643,6 +643,13 @@ const HomePage = () => {
       <Footer />
     </div>
   );
+//   return (
+//   <div style={{ padding: 50 }}>
+//     <h1>Welcome Aman 👋</h1>
+//     <p>Frontend is now under your control.</p>
+//   </div>
+// );
+
 };
 
 export default HomePage;
